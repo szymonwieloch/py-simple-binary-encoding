@@ -1,4 +1,5 @@
 import enum
+from dataclasses import dataclass
 
 class Presence(enum.StrEnum):
     'Matches the `presence` attribute in the schema.'
@@ -11,3 +12,15 @@ class ByteOrder(enum.StrEnum):
     BIG_ENDIAN = "bigEndian"
     LITTLE_ENDIAN = "littleEndian"
 
+@dataclass
+class Element:
+    name: str
+    description: str = ""
+
+    @property
+    def total_length(self) -> int:
+        """
+        Returns the total length of the element in bytes.
+        This is a placeholder and should be overridden in subclasses.
+        """
+        raise NotImplementedError("Subclasses must implement total_length")
