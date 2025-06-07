@@ -15,7 +15,7 @@ class ByteOrder(enum.StrEnum):
 @dataclass
 class Element:
     name: str
-    description: str = ""
+    description: str
 
     @property
     def total_length(self) -> int:

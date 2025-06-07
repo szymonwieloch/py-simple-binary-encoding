@@ -1,4 +1,4 @@
-from schema import ByteOrder, Presence
+from sbe2.schema import ByteOrder, Presence
 from pytest import raises
 
 def test_parse_byte_order():
