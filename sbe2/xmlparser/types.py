@@ -44,5 +44,11 @@ def parse_enum(node: Element) -> Enum:
     offset = parse_offset(node)
 
     valid_values = [parse_valid_value(vv) for vv in node]
+    
+    # names and values must be unique
+    if len(valid_values) != len(set(vv.name for vv in valid_values)):
+        raise SchemaParsingError(f"Duplicate valid value names found in enum '{name}'")
+    if len(valid_values) != len(set(vv.value for vv in valid_values)):
+        raise SchemaParsingError(f"Duplicate valid value values found in enum '{name}'")
 
     return Enum(name=name, description=description, since_version=since_version, deprecated=deprecated, valid_values=valid_values, encoding_type=encoding_type, offset=offset)
