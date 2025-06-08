@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=64.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
 
 [project]
-name = "example-package"
+name = "sbe2"
 version = "0.1.0"
 description = "An example Python package"
 readme = "README.md"
@@ -29,3 +29,6 @@ test = [
 
 [project.urls]
 Homepage = "https://github.com/szymonwieloch/py-simple-binary-encoding"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sbe2"]
