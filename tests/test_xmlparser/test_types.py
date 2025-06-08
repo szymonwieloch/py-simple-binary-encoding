@@ -1,5 +1,5 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set
 from sbe2.xmlparser.errors import SchemaParsingError
 from pytest import raises
 
@@ -60,3 +60,71 @@ def test_parse_enum():
         """
         )
         parse_enum(node)
+
+
+def test_parse_choice():
+    node = xml(
+        """
+    <choice name="TestChoice" sinceVersion="1" deprecated="2" description="Test Choice">6</choice>
+    """
+    )
+    choice = parse_choice(node)
+    assert choice.name == "TestChoice"
+    assert choice.since_version == 1
+    assert choice.deprecated == 2
+    assert choice.description == "Test Choice"
+    assert choice.value == 6
+
+    with raises(SchemaParsingError):
+        node = xml(
+            """
+        <choice name="TestChoice" sinceVersion="1" deprecated="2" description="Test Choice">invalid</choice>
+        """
+        )
+        parse_choice(node)
+
+
+def test_parse_set():
+    node = xml(
+        """
+    <set name="TestSet" sinceVersion="1" deprecated="2" description="Test Set" encodingType="int" offset="0">
+        <choice name="Value1">1</choice>
+        <choice name="Value2">2</choice>
+    </set>
+    """
+    )
+    set_ = parse_set(node)
+    assert set_.name == "TestSet"
+    assert set_.since_version == 1
+    assert set_.deprecated == 2
+    assert set_.description == "Test Set"
+    assert set_.encoding_type == "int"
+    assert set_.offset == 0
+    assert len(set_.choices) == 2
+    assert set_.choices[0].name == "Value1"
+    assert set_.choices[0].value == 1
+    assert set_.choices[1].name == "Value2"
+    assert set_.choices[1].value == 2
+
+    # duplicate names and values should raise an error
+
+    with raises(SchemaParsingError):
+        node = xml(
+            """
+        <set name="TestSet" sinceVersion="1" deprecated="2" description="Test Set" encodingType="int" offset="0">
+            <choice name="Value1">2</choice>
+            <choice name="Value2">2</choice>
+        </set>
+        """
+        )
+        parse_set(node)
+    with raises(SchemaParsingError):
+        node = xml(
+            """
+        <set name="TestSet" sinceVersion="1" deprecated="2" description="Test Set" encodingType="int" offset="0">
+            <choice name="Value1">1</choice>
+            <choice name="Value1">2</choice>
+        </set>
+        """
+        )
+        parse_set(node)

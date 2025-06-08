@@ -1,4 +1,4 @@
-from ..schema import ValidValue, Enum, Type, Composite, Presence
+from ..schema import ValidValue, Enum, Type, Composite, Presence, Set, Choice
 from lxml.etree import Element
 from .attributes import parse_name, parse_description, parse_since_version, parse_deprecated, parse_encoding_type, parse_offset
 from .errors import SchemaParsingError
@@ -52,3 +52,54 @@ def parse_enum(node: Element) -> Enum:
         raise SchemaParsingError(f"Duplicate valid value values found in enum '{name}'")
 
     return Enum(name=name, description=description, since_version=since_version, deprecated=deprecated, valid_values=valid_values, encoding_type=encoding_type, offset=offset)
+
+
+def parse_choice(node: Element) -> Choice:
+    """
+    Parses a choice element from XML.
+
+    Args:
+        node (Element): The XML element representing a choice.
+
+    Returns:
+        Choice: An instance of Choice with parsed attributes.
+    """
+    if node.tag != "choice":
+        raise SchemaParsingError(f"Expected 'choice' tag, got '{node.tag}'")
+    
+    name = parse_name(node)
+    description = parse_description(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    try:
+        value = int(node.text)
+    except (ValueError, TypeError) as e:
+        raise SchemaParsingError(f"Invalid value for choice '{name}': {node.text}") from e
+    
+    return Choice(name=name, description=description, since_version=since_version, deprecated=deprecated, value=value)
+
+def parse_set(node: Element) -> Set:
+    """    Parses a set element from XML.   
+    Args:
+        node (Element): The XML element representing a set.
+    Returns:
+        Set: An instance of Set with parsed attributes. 
+    """
+    if node.tag != "set":
+        raise SchemaParsingError(f"Expected 'set' tag, got '{node.tag}'")
+    
+    name = parse_name(node)
+    description = parse_description(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    encoding_type = parse_encoding_type(node)
+    offset = parse_offset(node)
+    choices = [parse_choice(choice) for choice in node]
+    
+    # names and values must be unique
+    if len(choices) != len(set(choice.name for choice in choices)):        
+        raise SchemaParsingError(f"Duplicate choice names found in set '{name}'")
+    if len(choices) != len(set(choice.value for choice in choices)):
+        raise SchemaParsingError(f"Duplicate choice value found in set '{name}'")
+    
+    return Set(name=name, description=description, since_version=since_version, deprecated=deprecated, offset=offset, encoding_type=encoding_type, choices=choices)
