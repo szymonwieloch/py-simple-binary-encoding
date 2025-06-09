@@ -13,32 +13,32 @@ uint8 = PrimitiveType(name='uint8', length=1, max_value=2**8-2, min_value=0, def
 uint16 = PrimitiveType(name='uint16', length=2, max_value=2**16-2, min_value=0, default_null_value=2**16-1)
 uint32 = PrimitiveType(name='uint32', length=4, max_value=2**32-2, min_value=0, default_null_value=2**32-1)
 uint64 = PrimitiveType(name='uint64', length=8, max_value=2**64-2, min_value=0, default_null_value=2**64-1)
-float = PrimitiveType(name='float', length=4, max_value=float('inf'), min_value=-float('inf'), default_null_value=float('nan'))
+float_ = PrimitiveType(name='float', length=4, max_value=float('inf'), min_value=-float('inf'), default_null_value=float('nan'))
 double = PrimitiveType(name='double', length=8, max_value=float('inf'), min_value=-float('inf'), default_null_value=float('nan'))
 
-decimal = Composite(
-    name='decimal',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64),
-        Type(name='exponent', primitive_type=int8),
-    ]
-)
+# decimal = Composite(
+#     name='decimal',
+#     description='',
+#     elements=[
+#         Type(name='mantissa', primitive_type=int64, description=''),
+#         Type(name='exponent', primitive_type=int8, description=''),
+#     ]
+# )
 
-decimal32 = Composite(
-    name='decimal32',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64),
-        Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT),
-    ]
-)
+# decimal32 = Composite(
+#     name='decimal32',
+#     description='',
+#     elements=[
+#         Type(name='mantissa', primitive_type=int64),
+#         Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT),
+#     ]
+# )
 
-decimal64 = Composite(
-    name='decimal64',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64),
-        Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT),
-    ]
-)
+# decimal64 = Composite(
+#     name='decimal64',
+#     description='',
+#     elements=[
+#         Type(name='mantissa', primitive_type=int64),
+#         Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT),
+#     ]
+# )

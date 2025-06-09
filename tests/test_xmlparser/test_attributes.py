@@ -10,6 +10,12 @@ from sbe2.xmlparser.attributes import (
     parse_presence,
     parse_semantic_type,
     parse_encoding_type,
+    parse_character_encoding,
+    parse_max_value,
+    parse_min_value,
+    parse_null_value,
+    parse_value_ref,
+    parse_primitive_type
 )
 from sbe2.schema import Presence
 from sbe2.xmlparser.errors import SchemaParsingError
@@ -98,3 +104,46 @@ def test_parse_encoding_type():
     assert parse_encoding_type(node) == "ascii"
     with raises(SchemaParsingError):
         parse_encoding_type(xml("<element />"))
+        
+        
+def test_character_encoding():
+    node = xml("<element characterEncoding='UTF-8'/>")
+    assert parse_character_encoding(node) == "UTF-8"
+    assert parse_character_encoding(xml("<element/>")) is None
+
+
+def test_parse_max_value():
+    node = xml("<element maxValue='100'/>")
+    assert parse_max_value(node) == 100
+    assert parse_max_value(xml("<element/>")) is None
+    with raises(SchemaParsingError):
+        parse_max_value(xml("<element maxValue='invalid'/>"))
+        
+        
+def test_parse_min_value():
+    node = xml("<element minValue='10'/>")
+    assert parse_min_value(node) == 10
+    assert parse_min_value(xml("<element/>")) is None
+    with raises(SchemaParsingError):
+        parse_min_value(xml("<element minValue='invalid'/>"))
+        
+def test_parse_null_value():
+    node = xml("<element nullValue='0'/>")
+    assert parse_null_value(node) == 0
+    assert parse_null_value(xml("<element/>")) is None
+    with raises(SchemaParsingError):
+        parse_null_value(xml("<element nullValue='invalid'/>"))
+        
+def test_parse_value_ref():
+    node = xml("<element valueRef='someValue'/>")
+    assert parse_value_ref(node) == "someValue"
+    assert parse_value_ref(xml("<element/>")) is None
+
+
+def test_parse_primitive_type():
+    assert parse_primitive_type(xml("<element primitiveType='int'/>")).name == "int"
+    assert parse_primitive_type(xml("<element primitiveType='float'/>")).name == "float"
+    with raises(SchemaParsingError):
+        parse_primitive_type(xml("<element primitiveType='invalid'/>"))
+    with raises(SchemaParsingError):
+        parse_primitive_type(xml("<element/>"))

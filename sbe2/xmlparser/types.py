@@ -103,3 +103,30 @@ def parse_set(node: Element) -> Set:
         raise SchemaParsingError(f"Duplicate choice value found in set '{name}'")
     
     return Set(name=name, description=description, since_version=since_version, deprecated=deprecated, offset=offset, encoding_type=encoding_type, choices=choices)
+
+
+def parse_type(node: Element) -> Type:
+    """
+    Parses a type element from XML.
+
+    Args:
+        node (Element): The XML element representing a type.
+
+    Returns:
+        Type: An instance of Type with parsed attributes.
+    """
+    if node.tag != "type":
+        raise SchemaParsingError(f"Expected 'type' tag, got '{node.tag}'")
+    
+    name = parse_name(node)
+    description = parse_description(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    encoding_type = parse_encoding_type(node)
+    offset = parse_offset(node)
+    
+    presence = Presence.from_string(node.get("presence", "optional"))
+    
+    return Type(name=name, description=description, since_version=since_version, deprecated=deprecated, encoding_type=encoding_type, offset=offset, presence=presence)
+
+
