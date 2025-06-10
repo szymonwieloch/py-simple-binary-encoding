@@ -1,4 +1,4 @@
-from .common import Element
+from .common import FixedLengthElement, Element
 from dataclasses import dataclass
 
 @dataclass
@@ -13,7 +13,7 @@ class ValidValue(Element):
     deprecated: int | None = None  # Version this value was deprecated, if applicable
 
 @dataclass
-class Enum(Element):
+class Enum(FixedLengthElement):
     """
     Represents an enumeration element in the schema.
     This is used to define a set of named values.

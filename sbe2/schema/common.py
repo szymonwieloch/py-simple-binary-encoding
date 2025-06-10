@@ -16,7 +16,15 @@ class ByteOrder(enum.StrEnum):
 class Element:
     name: str
     description: str
-
+    
+    
+@dataclass
+class FixedLengthElement(Element):
+    """
+    Represents an element with a fixed length in bytes.
+    This is a base class for elements that have a defined size.
+    """
+   
     @property
     def total_length(self) -> int:
         """

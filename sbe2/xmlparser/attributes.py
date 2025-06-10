@@ -296,3 +296,21 @@ def parse_value_ref(element: Element) -> str | None:
     """
     vr =  element.get("valueRef", "")
     return vr if vr else None
+
+
+def parse_type(element:Element) -> str:
+    """
+    Parses the 'type' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        str: The value of the 'type' attribute.
+    """
+    type_value = element.get("type", "")
+    if not type_value:
+        raise SchemaParsingError(
+            f"Element {element.tag} is missing 'type' attribute"
+        )
+    return type_value

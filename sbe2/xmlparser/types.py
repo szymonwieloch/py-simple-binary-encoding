@@ -1,6 +1,6 @@
-from ..schema import ValidValue, Enum, Type, Composite, Presence, Set, Choice
+from ..schema import ValidValue, Enum, Type, Composite, Presence, Set, Choice, FixedLengthElement, Ref
 from lxml.etree import Element
-from .attributes import parse_name, parse_description, parse_since_version, parse_deprecated, parse_encoding_type, parse_offset
+from .attributes import parse_name, parse_description, parse_since_version, parse_deprecated, parse_encoding_type, parse_offset, parse_type as parse_type_attr
 from .errors import SchemaParsingError
 
 def parse_valid_value(val_val: Element) -> ValidValue:
@@ -129,4 +129,70 @@ def parse_type(node: Element) -> Type:
     
     return Type(name=name, description=description, since_version=since_version, deprecated=deprecated, encoding_type=encoding_type, offset=offset, presence=presence)
 
+
+def parse_ref(node: Element) -> Ref:
+    """
+    Parses a ref element from XML.
+
+    Args:
+        node (Element): The XML element representing a reference.
+
+    Returns:
+        FixedLengthElement: An instance of Ref with parsed attributes.
+    """
+    if node.tag != "ref":
+        raise SchemaParsingError(f"Expected 'ref' tag, got '{node.tag}'")
+    
+    name = parse_name(node)
+    description = parse_description(node)
+    type_ = parse_type_attr(node)
+    offset = parse_offset(node)
+    
+    return Ref(name=name, description=description, type_=type_, offset=offset)
+
+def parse_composite_element(node: Element) -> FixedLengthElement:
+    """
+    Parses a composite element from XML.
+
+    Args:
+        node (Element): The XML element representing a composite element.
+
+    Returns:
+        FixedLengthElement: An instance of FixedLengthElement with parsed attributes.
+    """
+    match node.tag:
+        case "enum":
+            return parse_enum(node)
+        case "type":
+            return parse_type(node)
+        case "set":
+            return parse_set(node)
+        case "ref":
+            return parse_ref(node)
+    
+    raise SchemaParsingError(f"Unknown composite element type: {node.tag}")
+
+def parse_composite(node: Element) -> Composite:
+    """
+    Parses a composite element from XML.
+
+    Args:
+        node (Element): The XML element representing a composite.
+
+    Returns:
+        Composite: An instance of Composite with parsed attributes.
+    """
+    if node.tag != "composite":
+        raise SchemaParsingError(f"Expected 'composite' tag, got '{node.tag}'")
+    
+    name = parse_name(node)
+    description = parse_description(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    encoding_type = parse_encoding_type(node)
+    offset = parse_offset(node)
+    
+    elements = [parse_composite_element(child) for child in node]
+    
+    return Composite(name=name, description=description, since_version=since_version, deprecated=deprecated, encoding_type=encoding_type, offset=offset, elements=elements)
 

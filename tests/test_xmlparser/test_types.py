@@ -1,5 +1,5 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite
 from sbe2.xmlparser.errors import SchemaParsingError
 from pytest import raises
 
@@ -128,3 +128,24 @@ def test_parse_set():
         """
         )
         parse_set(node)
+
+
+def test_parse_ref():
+    node = xml(
+        """
+    <ref name="TestRef" description="Test Reference" type="int" offset="56"/>
+    """
+    )
+    ref = parse_ref(node)
+    assert ref.name == "TestRef"
+    assert ref.description == "Test Reference"
+    assert ref.type_ == "int"
+    assert ref.offset == 56
+
+    with raises(SchemaParsingError):
+        node = xml(
+            """
+        <ref name="TestRef" sinceVersion="1" deprecated="2" description="Test Reference"/>
+        """
+        )
+        parse_ref(node)  # type should be mandatory

@@ -15,7 +15,8 @@ from sbe2.xmlparser.attributes import (
     parse_min_value,
     parse_null_value,
     parse_value_ref,
-    parse_primitive_type
+    parse_primitive_type,
+    parse_type,
 )
 from sbe2.schema import Presence
 from sbe2.xmlparser.errors import SchemaParsingError
@@ -147,3 +148,11 @@ def test_parse_primitive_type():
         parse_primitive_type(xml("<element primitiveType='invalid'/>"))
     with raises(SchemaParsingError):
         parse_primitive_type(xml("<element/>"))
+        
+        
+def test_parse_type():
+    node = xml("<element type='int'/>")
+    assert parse_type(node) == "int"
+    with raises(SchemaParsingError):
+        parse_type(xml("<element/>"))
+        
