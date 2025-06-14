@@ -17,6 +17,7 @@ from sbe2.xmlparser.attributes import (
     parse_value_ref,
     parse_primitive_type,
     parse_type,
+    parse_length
 )
 from sbe2.schema import Presence
 from sbe2.xmlparser.errors import SchemaParsingError
@@ -156,3 +157,10 @@ def test_parse_type():
     with raises(SchemaParsingError):
         parse_type(xml("<element/>"))
         
+        
+def test_parse_length():
+    node = xml("<element length='10'/>")
+    assert parse_length(node) == 10
+    assert parse_length(xml("<element/>")) == 1
+    with raises(SchemaParsingError):
+        parse_length(xml("<element length='invalid'/>"))

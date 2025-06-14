@@ -1,7 +1,9 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type
 from sbe2.xmlparser.errors import SchemaParsingError
 from pytest import raises
+from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence
+from sbe2.schema import builtin
 
 
 def test_parse_valid_value():
@@ -149,3 +151,95 @@ def test_parse_ref():
         """
         )
         parse_ref(node)  # type should be mandatory
+        
+        
+def test_parse_composite():
+    node = xml(
+        """
+    <composite name="TestComposite" sinceVersion="1" deprecated="2" description="Test Composite" offset="0">
+        <type name="Field1" primitiveType="int" offset="0"/>
+        <set name="Field2" encodingType="int" offset="4">
+            <choice name="Choice1">1</choice>
+            <choice name="Choice2">2</choice>
+        </set>
+        <enum name="Field3" encodingType="int" offset="8">
+            <validValue name="Value1">1</validValue>
+            <validValue name="Value2">2</validValue>
+        </enum>
+        <ref name="Field4" description="Reference Field" type="string" offset="12"/>
+        <composite name="NestedComposite" sinceVersion="1" deprecated="2" description="Nested Composite">
+            <type name="NestedField" primitiveType="float" offset="0"/>
+        </composite>
+    </composite>
+    """
+    )
+    composite = parse_composite(node)
+    assert composite.name == "TestComposite"
+    assert composite.since_version == 1
+    assert composite.deprecated == 2
+    assert composite.description == "Test Composite"
+    assert composite.offset == 0
+    assert len(composite.elements) == 5
+    assert type(composite.elements[0]) == Type
+    assert composite.elements[0].name == "Field1"
+    assert composite.elements[0].primitive_type is builtin.int_
+    assert composite.elements[0].offset == 0
+    assert type(composite.elements[1]) == Set
+    assert composite.elements[1].name == "Field2"
+    assert composite.elements[1].encoding_type == "int"
+    assert composite.elements[1].offset == 4
+    assert len(composite.elements[1].choices) == 2
+    assert composite.elements[1].choices[0].name == "Choice1"
+    assert composite.elements[1].choices[0].value == 1
+    assert composite.elements[1].choices[1].name == "Choice2"
+    assert composite.elements[1].choices[1].value == 2
+    assert composite.elements[2].name == "Field3"
+    assert type(composite.elements[2]) == Enum
+    assert composite.elements[2].encoding_type == "int"
+    assert composite.elements[2].offset == 8
+    assert len(composite.elements[2].valid_values) == 2
+    assert composite.elements[2].valid_values[0].name == "Value1"
+    assert composite.elements[2].valid_values[0].value == 1
+    assert composite.elements[2].valid_values[1].name == "Value2"
+    assert composite.elements[2].valid_values[1].value == 2
+    assert type(composite.elements[3]) == Ref
+    assert composite.elements[3].name == "Field4"
+    assert composite.elements[3].description == "Reference Field"
+    assert composite.elements[3].type_ == "string"
+    assert composite.elements[3].offset == 12
+    assert type(composite.elements[4]) == Composite
+    assert composite.elements[4].name == "NestedComposite"
+    assert composite.elements[4].since_version == 1
+    assert composite.elements[4].deprecated == 2
+    assert composite.elements[4].description == "Nested Composite"
+    assert len(composite.elements[4].elements) == 1
+    assert type(composite.elements[4].elements[0]) == Type
+    assert composite.elements[4].elements[0].name == "NestedField"
+    assert composite.elements[4].elements[0].primitive_type is builtin.float_
+    assert composite.elements[4].elements[0].offset == 0
+    
+
+def test_parse_type():
+    node = xml(
+        """
+    <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="required" length="3" />
+    """
+    )
+    type_ = parse_type(node)
+    assert type_.name == "TestType"
+    assert type_.primitive_type is builtin.int_
+    assert type_.since_version == 1
+    assert type_.deprecated == 2
+    assert type_.description == "Test Type"
+    assert type_.offset == 0
+    assert type_.presence == Presence.REQUIRED
+    assert type_.length == 3
+    
+    
+    with raises(SchemaParsingError):
+        node = xml(
+            """
+        <type name="TestType" sinceVersion="1" deprecated="2" description="Test Type"/>
+        """
+        )
+        parse_type(node)  # primitiveType should be mandatory

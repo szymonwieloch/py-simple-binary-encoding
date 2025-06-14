@@ -1,6 +1,6 @@
 from ..schema import ValidValue, Enum, Type, Composite, Presence, Set, Choice, FixedLengthElement, Ref
 from lxml.etree import Element
-from .attributes import parse_name, parse_description, parse_since_version, parse_deprecated, parse_encoding_type, parse_offset, parse_type as parse_type_attr
+from .attributes import parse_name, parse_description, parse_since_version, parse_deprecated, parse_encoding_type, parse_offset, parse_type as parse_type_attr, parse_presence, parse_primitive_type, parse_length
 from .errors import SchemaParsingError
 
 def parse_valid_value(val_val: Element) -> ValidValue:
@@ -122,12 +122,13 @@ def parse_type(node: Element) -> Type:
     description = parse_description(node)
     since_version = parse_since_version(node)
     deprecated = parse_deprecated(node)
-    encoding_type = parse_encoding_type(node)
+    primitive_type = parse_primitive_type(node)
     offset = parse_offset(node)
+    length = parse_length(node)
     
-    presence = Presence.from_string(node.get("presence", "optional"))
+    presence = parse_presence(node)
     
-    return Type(name=name, description=description, since_version=since_version, deprecated=deprecated, encoding_type=encoding_type, offset=offset, presence=presence)
+    return Type(name=name, description=description, since_version=since_version, deprecated=deprecated, primitive_type=primitive_type, offset=offset, presence=presence, length=length)
 
 
 def parse_ref(node: Element) -> Ref:
@@ -169,6 +170,8 @@ def parse_composite_element(node: Element) -> FixedLengthElement:
             return parse_set(node)
         case "ref":
             return parse_ref(node)
+        case "composite":
+            return parse_composite(node)
     
     raise SchemaParsingError(f"Unknown composite element type: {node.tag}")
 
@@ -189,10 +192,9 @@ def parse_composite(node: Element) -> Composite:
     description = parse_description(node)
     since_version = parse_since_version(node)
     deprecated = parse_deprecated(node)
-    encoding_type = parse_encoding_type(node)
     offset = parse_offset(node)
     
     elements = [parse_composite_element(child) for child in node]
     
-    return Composite(name=name, description=description, since_version=since_version, deprecated=deprecated, encoding_type=encoding_type, offset=offset, elements=elements)
+    return Composite(name=name, description=description, since_version=since_version, deprecated=deprecated, offset=offset, elements=elements)
 

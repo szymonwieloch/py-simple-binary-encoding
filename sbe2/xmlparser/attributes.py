@@ -314,3 +314,22 @@ def parse_type(element:Element) -> str:
             f"Element {element.tag} is missing 'type' attribute"
         )
     return type_value
+
+
+def parse_length(element: Element) -> int:
+    """
+    Parses the 'length' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        int: The value of the 'length' attribute.
+    """
+    length_str = element.get("length", "1")
+    try:
+        return int(length_str)
+    except (ValueError, TypeError) as e:
+        raise SchemaParsingError(
+            f"Invalid length value '{length_str}' in element {element.tag}"
+        ) from e
