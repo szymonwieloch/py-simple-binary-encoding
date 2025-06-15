@@ -1,5 +1,5 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema, parse_message, parse_field
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
@@ -263,3 +263,47 @@ def test_parse_message_schema():
     assert ms.byte_order == ByteOrder.BIG_ENDIAN
     assert ms.id == 123
     assert ms.semantic_version == "1.0.0"
+    
+    
+def test_parse_message_attributes():
+    node = xml(
+        """
+    <message id="1" name="TestMessage" description="This is a test message" semanticType="test" blockLength="8" sinceVersion="1" deprecated="2" alignment="4">
+    </message>
+    """
+    )
+    ctx = ParsingContext()
+    message = parse_message(node, ctx)
+    assert message.id == 1
+    assert message.name == "TestMessage"
+    assert message.description == "This is a test message"
+    assert message.semantic_type == "test"
+    assert message.block_length == 8
+    assert message.since_version == 1
+    assert message.deprecated == 2
+    assert message.alignment == 4
+    assert message.fields == []
+    assert message.groups == []
+    assert message.datas == []
+    
+    
+    
+def test_parse_field():
+    node = xml(
+        """
+    <field id="1" name="TestField" description="This is a test field" type="int" offset="0" alignment="4" presence="required" sinceVersion="1" deprecated="2" />
+    """
+    )
+    ctx = ParsingContext()
+    field = parse_field(node, ctx)
+    assert field.id == 1
+    assert field.name == "TestField"
+    assert field.description == "This is a test field"
+    assert field.type == builtin.primitive_type_to_type(builtin.int_) # TODO: create easy access to builtin types
+    assert field.offset == 0
+    assert field.alignment == 4
+    assert field.presence == Presence.REQUIRED
+    assert field.since_version == 1
+    assert field.deprecated == 2
+    assert field.value_ref is None
+    assert field.constant_value is None

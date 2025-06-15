@@ -32,6 +32,9 @@ from .attributes import (
     parse_semantic_version,
     parse_byte_order,
     parse_header_type,
+    parse_alignment,
+    parse_semantic_type,
+    parse_block_length,
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
@@ -308,4 +311,86 @@ def parse_message_schema(node: Element) -> MessageSchema:
         id=id,
         byte_order=byte_order,
         header_type=header_type,
+    )
+
+
+def parse_message(node: Element, ctx: ParsingContext) -> Message:
+    """
+    Parses a message element from XML.
+
+    Args:
+        node (Element): The XML element representing a message.
+
+    Returns:
+        Message: An instance of Message with parsed attributes.
+    """
+    if node.tag != "message":
+        raise SchemaParsingError(f"Expected 'message' tag, got '{node.tag}'")
+
+    id_ = parse_id(node)
+    name = parse_name(node)
+    description = parse_description(node)
+    semantic_type = parse_semantic_type(node)
+    block_length = parse_block_length(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    alignment = parse_alignment(node)
+    
+    # TODO: get child elements
+    fields = []
+    groups = []
+    datas = []
+
+    return Message(
+        id=id_,
+        name=name,
+        description=description,
+        semantic_type=semantic_type,
+        block_length=block_length,
+        since_version=since_version,
+        deprecated=deprecated,
+        alignment=alignment,
+        fields=fields,
+        groups=groups,
+        datas=datas,
+    )
+    
+    
+def parse_field(node: Element, ctx: ParsingContext) -> Field:
+    """
+    Parses a field element from XML.
+
+    Args:
+        node (Element): The XML element representing a field.
+
+    Returns:
+        Field: An instance of Field with parsed attributes.
+    """
+    if node.tag != "field":
+        raise SchemaParsingError(f"Expected 'field' tag, got '{node.tag}'")
+
+    id_ = parse_id(node)
+    name = parse_name(node)
+    description = parse_description(node)
+    type_ = parse_type_attr(node)
+    presence = parse_presence(node)
+    offset = parse_offset(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    alignment = parse_alignment(node)
+    
+    # TODO: value_ref and constant_value parsing
+    
+    return Field(
+        id=id_,
+        name=name,
+        description=description,
+        type=ctx.types[type_],
+        presence=presence,
+        offset=offset,
+        since_version=since_version,
+        deprecated=deprecated,
+        alignment=alignment,
+        value_ref=None,
+        constant_value=None,
     )
