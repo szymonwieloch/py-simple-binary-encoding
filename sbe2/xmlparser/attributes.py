@@ -333,3 +333,91 @@ def parse_length(element: Element) -> int:
         raise SchemaParsingError(
             f"Invalid length value '{length_str}' in element {element.tag}"
         ) from e
+        
+def parse_byte_order(element: Element) -> ByteOrder:
+    """
+    Parses the 'byteOrder' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        ByteOrder: The byte order value, defaulting to 'littleEndian' if not specified.
+    """
+    byte_order_str = element.get("byteOrder", "littleEndian")
+    try:
+        return ByteOrder(byte_order_str)
+    except ValueError as e:
+        raise SchemaParsingError(
+            f"Invalid byte order '{byte_order_str}' in element {element.tag}"
+        ) from e
+        
+def parse_version(element: Element) -> int:
+    """
+    Parses the 'version' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        int: The value of the 'version' attribute.
+    """
+    version_str = element.get("version")
+    try:
+        return int(version_str)
+    except (ValueError, TypeError) as e:
+        raise SchemaParsingError(
+            f"Invalid version value '{version_str}' in element {element.tag}"
+        ) from e
+        
+        
+def parse_header_type(element: Element) -> str:
+    """
+    Parses the 'headerType' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        str: The value of the 'headerType' attribute.
+    """
+    header_type = element.get("headerType", "messageHeader")
+    if not header_type:
+        raise SchemaParsingError(
+            f"Element {element.tag} is missing 'headerType' attribute"
+        )
+    return header_type
+
+def parse_package(element: Element) -> str:
+    """
+    Parses the 'package' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        str: The value of the 'package' attribute.
+    """
+    package = element.get("package", "")
+    if not package:
+        raise SchemaParsingError(
+            f"Element {element.tag} is missing 'package' attribute"
+        )
+    return package
+
+
+def parse_semantic_version(element: Element) -> str:
+    """
+    Parses the 'semanticVersion' attribute from an XML element.
+
+    Args:
+        element (Element): The XML element to parse.
+
+    Returns:
+        str: The value of the 'semanticVersion' attribute.
+    """
+    return element.get("semanticVersion", "")
+    # TODO: Validate semantic version format if necessary
+    # TODO: is empty string valid?
+    
+    

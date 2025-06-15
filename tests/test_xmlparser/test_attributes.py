@@ -17,9 +17,14 @@ from sbe2.xmlparser.attributes import (
     parse_value_ref,
     parse_primitive_type,
     parse_type,
-    parse_length
+    parse_length,
+    parse_semantic_version,
+    parse_byte_order,
+    parse_header_type,
+    parse_package,
+    parse_version
 )
-from sbe2.schema import Presence
+from sbe2.schema import Presence, ByteOrder
 from sbe2.xmlparser.errors import SchemaParsingError
 from lxml.etree import XML as xml
 from pytest import raises
@@ -164,3 +169,40 @@ def test_parse_length():
     assert parse_length(xml("<element/>")) == 1
     with raises(SchemaParsingError):
         parse_length(xml("<element length='invalid'/>"))
+        
+        
+def test_parse_semantic_version():
+    node = xml("<element semanticVersion='1.0.0'/>")
+    assert parse_semantic_version(node) == "1.0.0"
+    assert parse_semantic_version(xml("<element/>")) == ""
+    
+    
+def test_parse_byte_order():
+    assert parse_byte_order(xml("<element byteOrder='littleEndian'/>")) == ByteOrder.LITTLE_ENDIAN
+    assert parse_byte_order(xml("<element byteOrder='bigEndian'/>")) == ByteOrder.BIG_ENDIAN
+    assert parse_byte_order(xml("<element/>")) == ByteOrder.LITTLE_ENDIAN
+    with raises(SchemaParsingError):
+        parse_byte_order(xml("<element byteOrder='invalid'/>"))
+        
+        
+def test_parse_header_type():
+    assert parse_header_type(xml('<element headerType="someHeader"/>')) == "someHeader"
+    assert parse_header_type(xml('<element/>')) == "messageHeader"
+    with raises(SchemaParsingError):
+        parse_header_type(xml('<element headerType=""/>'))
+        
+        
+def test_parse_package():
+    node = xml("<element package='com.example'/>")
+    assert parse_package(node) == "com.example"
+    with raises(SchemaParsingError):
+        parse_package(xml("<element/>"))
+        
+        
+def test_parse_version():
+    node = xml("<element version='1'/>")
+    assert parse_version(node) == 1
+    with raises(SchemaParsingError):
+        parse_version(xml("<element/>"))
+    with raises(SchemaParsingError):
+        parse_version(xml("<element version='invalid'/>"))

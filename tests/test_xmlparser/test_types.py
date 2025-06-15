@@ -1,9 +1,9 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
-from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence
+from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence, MessageSchema, ByteOrder
 from sbe2.schema import builtin
 
 
@@ -247,3 +247,19 @@ def test_parse_type():
         """
         )
         parse_type(node)  # primitiveType should be mandatory
+        
+        
+def test_parse_message_schema():
+    node = xml(
+        """
+    <messageSchema version="1" package="test.package" headerType="myHeader" byteOrder="bigEndian" id="123" semanticVersion="1.0.0">
+    </messageSchema>
+    """
+    )
+    ms = parse_message_schema(node)
+    assert ms.version == 1
+    assert ms.package == "test.package"
+    assert ms.header_type == "myHeader"
+    assert ms.byte_order == ByteOrder.BIG_ENDIAN
+    assert ms.id == 123
+    assert ms.semantic_version == "1.0.0"
