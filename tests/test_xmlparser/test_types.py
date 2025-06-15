@@ -1,5 +1,5 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema, parse_message, parse_field
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema, parse_message, parse_field, parse_data, parse_group
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
@@ -307,3 +307,41 @@ def test_parse_field():
     assert field.deprecated == 2
     assert field.value_ref is None
     assert field.constant_value is None
+    
+    
+def test_parse_data():
+    node = xml(
+        """
+    <data id="123" name="TestData" description="This is a test data" type="int" semanticType="text" sinceVersion="1" deprecated="2" />
+    """
+    )
+    ctx = ParsingContext()
+    data = parse_data(node, ctx)
+    assert data.id == 123
+    assert data.name == "TestData"
+    assert data.description == "This is a test data"
+    assert data.type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert data.semantic_type == "text"
+    assert data.since_version == 1
+    assert data.deprecated == 2
+    
+    
+def test_parse_group_attributes():
+    node = xml(
+        """
+    <group name="TestGroup" id="1" description="This is a test group" semanticType="test" blockLength="8" sinceVersion="1" deprecated="2" dimensionType="int">
+    </group>
+    """
+    )
+    ctx = ParsingContext()
+    group = parse_group(node, ctx)
+    assert group.name == "TestGroup"
+    assert group.id == 1
+    assert group.description == "This is a test group"
+    assert group.block_length == 8
+    assert len(group.fields) == 0
+    assert len(group.groups) == 0
+    assert len(group.datas) == 0
+    assert group.dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert group.since_version == 1
+    assert group.deprecated == 2

@@ -11,3 +11,5 @@ class Data:
     type_: Composite
     description: str = ""
     semantic_type: str = ""
+    since_version: int = 0
+    deprecated: int | None = None

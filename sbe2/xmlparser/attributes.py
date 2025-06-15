@@ -1,6 +1,7 @@
 from lxml.etree import Element
 from .errors import SchemaParsingError
-from ..schema import Presence, ByteOrder, PrimitiveType
+from ..schema import Presence, ByteOrder, PrimitiveType, Composite
+from .ctx import ParsingContext
 
 
 def parse_name(element: Element) -> str:
@@ -421,3 +422,20 @@ def parse_semantic_version(element: Element) -> str:
     # TODO: is empty string valid?
     
     
+def parse_dimension_type(node, ctx: ParsingContext) -> Composite:
+    """
+    Parses the 'dimensionType' attribute from an XML element.
+
+    Args:
+        node (Element): The XML element to parse.
+
+    Returns:
+        str: The value of the 'dimensionType' attribute.
+    """
+    dimension_type = node.get("dimensionType", "groupSizeEncoding")
+    if not dimension_type:
+        raise SchemaParsingError(
+            f"Element {node.tag} is missing 'dimensionType' attribute"
+        )
+    # TODO: validate that the composite meets requirements for a dimension type
+    return ctx.types[dimension_type]

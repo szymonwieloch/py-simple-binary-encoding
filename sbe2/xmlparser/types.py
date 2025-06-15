@@ -35,6 +35,7 @@ from .attributes import (
     parse_alignment,
     parse_semantic_type,
     parse_block_length,
+    parse_dimension_type,
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
@@ -393,4 +394,76 @@ def parse_field(node: Element, ctx: ParsingContext) -> Field:
         alignment=alignment,
         value_ref=None,
         constant_value=None,
+    )
+    
+    
+def parse_group(node: Element, ctx: ParsingContext) -> Group:
+    """
+    Parses a group element from XML.
+
+    Args:
+        node (Element): The XML element representing a group.
+
+    Returns:
+        Group: An instance of Group with parsed attributes.
+    """
+    if node.tag != "group":
+        raise SchemaParsingError(f"Expected 'group' tag, got '{node.tag}'")
+
+    id_ = parse_id(node)
+    name = parse_name(node)
+    description = parse_description(node)
+    block_length = parse_block_length(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+    dimension_type = parse_dimension_type(node, ctx)
+
+    # TODO: get child elements
+    fields = []
+    groups = []
+    datas = []
+
+    return Group(
+        id=id_,
+        name=name,
+        description=description,
+        block_length=block_length,
+        since_version=since_version,
+        deprecated=deprecated,
+        fields=fields,
+        groups=groups,
+        datas=datas,
+        dimension_type=dimension_type
+    )
+    
+    
+def parse_data(node: Element, ctx: ParsingContext) -> Data:
+    """
+    Parses a data element from XML.
+
+    Args:
+        node (Element): The XML element representing a data element.
+
+    Returns:
+        Data: An instance of Data with parsed attributes.
+    """
+    if node.tag != "data":
+        raise SchemaParsingError(f"Expected 'data' tag, got '{node.tag}'")
+
+    name = parse_name(node)
+    description = parse_description(node)
+    id_ = parse_id(node)
+    type_ = parse_type_attr(node)
+    semantic_type = parse_semantic_type(node)
+    since_version = parse_since_version(node)
+    deprecated = parse_deprecated(node)
+
+    return Data(
+        name=name,
+        id=id_,
+        type_=ctx.types[type_],
+        description=description,
+        semantic_type=semantic_type,
+        since_version=since_version,
+        deprecated=deprecated,
     )
