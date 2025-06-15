@@ -286,7 +286,31 @@ def test_parse_message_attributes():
     assert message.groups == []
     assert message.datas == []
     
-    
+   
+def test_parse_message_elements():
+    node = xml(
+        """
+    <message id="1" name="TestMessage">
+        <field id="2" name="Field1" type="int"/>
+        <group id="3" name="SubGroup" dimensionType="int"/>
+        <data id="4" name="Data1" type="int"/>
+    </message>
+    """
+    )
+    ctx = ParsingContext()
+    message = parse_message(node, ctx)
+    assert len(message.fields) == 1
+    assert message.fields[0].id == 2
+    assert message.fields[0].name == "Field1"
+    assert message.fields[0].type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert len(message.groups) == 1
+    assert message.groups[0].id == 3
+    assert message.groups[0].name == "SubGroup"
+    assert message.groups[0].dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert len(message.datas) == 1
+    assert message.datas[0].id == 4
+    assert message.datas[0].name == "Data1"
+    assert message.datas[0].type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
     
 def test_parse_field():
     node = xml(
@@ -345,3 +369,28 @@ def test_parse_group_attributes():
     assert group.dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
     assert group.since_version == 1
     assert group.deprecated == 2
+    
+def test_parse_group_elements():
+    node = xml(
+        """
+    <group name="TestGroup" id="1" dimensionType="int">
+        <field id="2" name="Field1" type="int"/>
+        <group id="3" name="SubGroup" dimensionType="int"/>
+        <data id="4" name="Data1" type="int"/>
+    </group>
+    """
+    )
+    ctx = ParsingContext()
+    group = parse_group(node, ctx)
+    assert len(group.fields) == 1
+    assert group.fields[0].id == 2
+    assert group.fields[0].name == "Field1"
+    assert group.fields[0].type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert len(group.groups) == 1
+    assert group.groups[0].id == 3
+    assert group.groups[0].name == "SubGroup"
+    assert group.groups[0].dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert len(group.datas) == 1
+    assert group.datas[0].id == 4
+    assert group.datas[0].name == "Data1"
+    assert group.datas[0].type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types

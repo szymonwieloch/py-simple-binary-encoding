@@ -39,6 +39,8 @@ from .attributes import (
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
+from lxml.etree import XMLParser, parse
+from lxml import ElementInclude
 
 
 def parse_valid_value(val_val: Element) -> ValidValue:
@@ -301,7 +303,7 @@ def parse_message_schema(node: Element) -> MessageSchema:
     package = parse_package(node)
     version = parse_version(node)
     semantic_version = parse_semantic_version(node)
-    id = parse_id(node)
+    id_ = parse_id(node)
     byte_order = parse_byte_order(node)
     header_type = parse_header_type(node)
 
@@ -309,7 +311,7 @@ def parse_message_schema(node: Element) -> MessageSchema:
         package=package,
         version=version,
         semantic_version=semantic_version,
-        id=id,
+        id=id_,
         byte_order=byte_order,
         header_type=header_type,
     )
@@ -337,11 +339,8 @@ def parse_message(node: Element, ctx: ParsingContext) -> Message:
     deprecated = parse_deprecated(node)
     alignment = parse_alignment(node)
     
-    # TODO: get child elements
-    fields = []
-    groups = []
-    datas = []
-
+    fields, groups, datas = parse_elements(node, ctx)
+    
     return Message(
         id=id_,
         name=name,
@@ -418,10 +417,7 @@ def parse_group(node: Element, ctx: ParsingContext) -> Group:
     deprecated = parse_deprecated(node)
     dimension_type = parse_dimension_type(node, ctx)
 
-    # TODO: get child elements
-    fields = []
-    groups = []
-    datas = []
+    fields, groups, datas = parse_elements(node, ctx)
 
     return Group(
         id=id_,
@@ -467,3 +463,48 @@ def parse_data(node: Element, ctx: ParsingContext) -> Data:
         since_version=since_version,
         deprecated=deprecated,
     )
+    
+    
+def parse_elements(node: Element, ctx: ParsingContext) -> tuple[list[Field], list[Group], list[Data]]:
+    """
+    Parses a list of elements from XML. This functionality is shared between group and message parsing.
+
+    Args:
+        node (Element): The XML element containing child elements to parse.
+        ctx (ParsingContext): The parsing context containing type definitions.
+
+    Returns:
+        tuple[list[Field], list[Group], list[Data]]: A tuple containing lists of parsed fields, groups, and data elements.
+    """
+    fields = []
+    groups = []
+    datas = []
+
+    for child in node:
+        match child.tag:
+            case "field":
+                if datas or groups:
+                    raise SchemaParsingError(
+                        "Field cannot be defined after data or group elements."
+                    )
+                fields.append(parse_field(child, ctx))
+            case "group":
+                if datas:
+                    raise SchemaParsingError(
+                        "Group cannot be defined after data elements."
+                    )
+                groups.append(parse_group(child, ctx))
+            case "data":
+                datas.append(parse_data(child, ctx))
+            case _:
+                raise SchemaParsingError(f"Unknown element type: {child.tag}")
+
+    return fields, groups, datas
+
+
+def parse_schema(path) -> MessageSchema:
+    """Parses te SBE 2.0 schema file"""
+    with open (path, 'rb') as file:
+        parser = XMLParser(remote_comments=True)
+        root = parser(file, parser=parser).getroot()
+        ElementInclude.include(root)
