@@ -507,4 +507,5 @@ def parse_schema(path) -> MessageSchema:
     with open (path, 'rb') as file:
         parser = XMLParser(remote_comments=True)
         root = parser(file, parser=parser).getroot()
-        ElementInclude.include(root)
+    ElementInclude.include(root)
+    schema = parse_message_schema(root)
