@@ -1,9 +1,11 @@
 from lxml.etree import XML as xml
 from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type
 from sbe2.xmlparser.errors import SchemaParsingError
+from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
 from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence
 from sbe2.schema import builtin
+
 
 
 def test_parse_valid_value():
@@ -138,10 +140,11 @@ def test_parse_ref():
     <ref name="TestRef" description="Test Reference" type="int" offset="56"/>
     """
     )
-    ref = parse_ref(node)
+    ctx = ParsingContext()
+    ref = parse_ref(node, ctx)
     assert ref.name == "TestRef"
     assert ref.description == "Test Reference"
-    assert ref.type_ == "int"
+    assert ref.type_ == builtin.primitive_type_to_type(builtin.int_) # TODO: create a collection of builtin types
     assert ref.offset == 56
 
     with raises(SchemaParsingError):
@@ -150,7 +153,7 @@ def test_parse_ref():
         <ref name="TestRef" sinceVersion="1" deprecated="2" description="Test Reference"/>
         """
         )
-        parse_ref(node)  # type should be mandatory
+        parse_ref(node, ctx)  # type should be mandatory
         
         
 def test_parse_composite():
@@ -166,14 +169,15 @@ def test_parse_composite():
             <validValue name="Value1">1</validValue>
             <validValue name="Value2">2</validValue>
         </enum>
-        <ref name="Field4" description="Reference Field" type="string" offset="12"/>
+        <ref name="Field4" description="Reference Field" type="decimal" offset="12"/>
         <composite name="NestedComposite" sinceVersion="1" deprecated="2" description="Nested Composite">
             <type name="NestedField" primitiveType="float" offset="0"/>
         </composite>
     </composite>
     """
     )
-    composite = parse_composite(node)
+    ctx = ParsingContext()
+    composite = parse_composite(node, ctx)
     assert composite.name == "TestComposite"
     assert composite.since_version == 1
     assert composite.deprecated == 2
@@ -205,7 +209,7 @@ def test_parse_composite():
     assert type(composite.elements[3]) == Ref
     assert composite.elements[3].name == "Field4"
     assert composite.elements[3].description == "Reference Field"
-    assert composite.elements[3].type_ == "string"
+    assert composite.elements[3].type_ == builtin.decimal
     assert composite.elements[3].offset == 12
     assert type(composite.elements[4]) == Composite
     assert composite.elements[4].name == "NestedComposite"
