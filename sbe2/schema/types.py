@@ -1,5 +1,8 @@
 from .common import FixedLengthElement
 from .builtin import decimal, decimal32, decimal64, primitive_type_to_type, int16, int32, int64, int8, uint16, uint32, uint64, float_, double, char, int_, uint8
+from .type import Type
+from .composite import Composite
+
 
 class Types:
     """
@@ -59,3 +62,19 @@ class Types:
         if name not in self._types:
             raise KeyError(f"Type '{name}' does not exist.")
         return self._types[name]
+    
+    def __iter__(self):
+        return iter(self._types.values())
+    
+    
+    def get_composite(self, name:str):
+        com = self[name]
+        if not isinstance(com, Composite):
+            raise ValueError(f"Type '{name}' is not composite but '{type(com)}'")
+        return com
+    
+    def get_type(self, name:str):
+        type_ = self[name]
+        if not isinstance(type_, Type):
+            raise ValueError(f"Type '{name}' is not type but '{type(type_)}'")
+        return type_

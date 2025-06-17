@@ -36,3 +36,15 @@ def test_types_add():
             
         got = types_['NewType']
         assert got == new_type
+        
+        
+def test_iter():
+    types = Types()
+    assert len(list(types)) == 15
+    
+    
+def test_get_composite_type():
+    types = Types()
+    assert types.get_type('int') is not None
+    with raises(ValueError):
+        types.get_composite('int')

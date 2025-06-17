@@ -508,7 +508,7 @@ def parse_elements(node: Element, ctx: ParsingContext) -> tuple[list[Field], lis
     return fields, groups, datas
 
 
-def parse_type_node(node:Element, ctx: ParsingContext) -> FixedLengthElement:
+def parse_type_node(node:Element) -> FixedLengthElement:
     match node.tag:
         case 'type':
             return parse_type(node)
@@ -532,8 +532,17 @@ def parse_schema(path) -> MessageSchema:
     
     for types in root.iter('types'):
         for type_ in types:
-            type_def = parse_type_node(type_, ctx)
+            type_def = parse_type_node(type_)
             ctx.types.add(type_def)
+    
+    # lazily bound types together
+    for type_def in ctx.types:
+        if isinstance(type_def, Enum):
+            type_def.encoding_type = ctx.types.get_type(type_def.encoding_type_name)
+        elif isinstance(type_def, Set):
+            type_def.encoding_type = ctx.types.get_type(type_def.encoding_type_name)
+        elif isinstance(type_def, Ref):
+            type_def.type_ = ctx.types.get_type(type_def.type_name)
     
     # TODO: parse <messages> and apply namespace
     for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):
