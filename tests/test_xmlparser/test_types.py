@@ -12,7 +12,7 @@ def test_parse_valid_value():
     node = xml(
         '<validValue name="something" sinceVersion="5" deprecated="8" description="blah" >5</validValue>'
     )
-    vv = parse_valid_value(node)
+    vv = parse_valid_value(node, 'int')
     assert vv.name == "something"
     assert vv.value == 5
     assert vv.since_version == 5
@@ -34,7 +34,7 @@ def test_parse_enum():
     assert enum.since_version == 1
     assert enum.deprecated == 2
     assert enum.description == "Test Enum"
-    assert enum.encoding_type == "int"
+    assert enum.encoding_type_name == 'int'
     assert enum.offset == 0
     assert len(enum.valid_values) == 2
     assert enum.valid_values[0].name == "Value1"
@@ -102,7 +102,7 @@ def test_parse_set():
     assert set_.since_version == 1
     assert set_.deprecated == 2
     assert set_.description == "Test Set"
-    assert set_.encoding_type == "int"
+    assert set_.encoding_type_name == 'int'
     assert set_.offset == 0
     assert len(set_.choices) == 2
     assert set_.choices[0].name == "Value1"
@@ -140,11 +140,10 @@ def test_parse_ref():
     <ref name="TestRef" description="Test Reference" type="int" offset="56"/>
     """
     )
-    ctx = ParsingContext()
-    ref = parse_ref(node, ctx)
+    ref = parse_ref(node)
     assert ref.name == "TestRef"
     assert ref.description == "Test Reference"
-    assert ref.type_ == builtin.primitive_type_to_type(builtin.int_) # TODO: create a collection of builtin types
+    assert ref.type_name == 'int'
     assert ref.offset == 56
 
     with raises(SchemaParsingError):
@@ -153,7 +152,7 @@ def test_parse_ref():
         <ref name="TestRef" sinceVersion="1" deprecated="2" description="Test Reference"/>
         """
         )
-        parse_ref(node, ctx)  # type should be mandatory
+        parse_ref(node)  # type should be mandatory
         
         
 def test_parse_composite():
@@ -176,8 +175,7 @@ def test_parse_composite():
     </composite>
     """
     )
-    ctx = ParsingContext()
-    composite = parse_composite(node, ctx)
+    composite = parse_composite(node)
     assert composite.name == "TestComposite"
     assert composite.since_version == 1
     assert composite.deprecated == 2
@@ -190,7 +188,7 @@ def test_parse_composite():
     assert composite.elements[0].offset == 0
     assert type(composite.elements[1]) == Set
     assert composite.elements[1].name == "Field2"
-    assert composite.elements[1].encoding_type == "int"
+    assert composite.elements[1].encoding_type_name == 'int'
     assert composite.elements[1].offset == 4
     assert len(composite.elements[1].choices) == 2
     assert composite.elements[1].choices[0].name == "Choice1"
@@ -199,7 +197,7 @@ def test_parse_composite():
     assert composite.elements[1].choices[1].value == 2
     assert composite.elements[2].name == "Field3"
     assert type(composite.elements[2]) == Enum
-    assert composite.elements[2].encoding_type == "int"
+    assert composite.elements[2].encoding_type_name == 'int'
     assert composite.elements[2].offset == 8
     assert len(composite.elements[2].valid_values) == 2
     assert composite.elements[2].valid_values[0].name == "Value1"
@@ -209,7 +207,7 @@ def test_parse_composite():
     assert type(composite.elements[3]) == Ref
     assert composite.elements[3].name == "Field4"
     assert composite.elements[3].description == "Reference Field"
-    assert composite.elements[3].type_ == builtin.decimal
+    assert composite.elements[3].type_name == 'decimal'
     assert composite.elements[3].offset == 12
     assert type(composite.elements[4]) == Composite
     assert composite.elements[4].name == "NestedComposite"

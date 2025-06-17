@@ -26,6 +26,7 @@ from sbe2.xmlparser.attributes import (
 )
 from sbe2.schema import Presence, ByteOrder
 from sbe2.xmlparser.errors import SchemaParsingError
+from sbe2.xmlparser.ctx import ParsingContext
 from lxml.etree import XML as xml
 from pytest import raises
 
@@ -107,8 +108,8 @@ def test_parse_semantic_type():
 
 
 def test_parse_encoding_type():
-    node = xml("<element encodingType='ascii'/>")
-    assert parse_encoding_type(node) == "ascii"
+    node = xml("<element encodingType='int'/>")
+    assert parse_encoding_type(node) == 'int'
     with raises(SchemaParsingError):
         parse_encoding_type(xml("<element />"))
         

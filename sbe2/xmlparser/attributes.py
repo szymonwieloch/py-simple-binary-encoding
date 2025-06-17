@@ -1,6 +1,6 @@
 from lxml.etree import Element
 from .errors import SchemaParsingError
-from ..schema import Presence, ByteOrder, PrimitiveType, Composite
+from ..schema import Presence, ByteOrder, PrimitiveType, Composite, Type
 from .ctx import ParsingContext
 
 
@@ -174,7 +174,7 @@ def parse_block_length(element: Element) -> int | None:
             f"Invalid blockLength value '{block_length}' in element {element.tag}"
         ) from e
 
-def parse_encoding_type(element: Element) -> str | None:
+def parse_encoding_type(element: Element) -> Type:
     """
     Parses the 'encodingType' attribute from an XML element.
 
@@ -182,7 +182,7 @@ def parse_encoding_type(element: Element) -> str | None:
         element (Element): The XML element to parse.
 
     Returns:
-        str: The value of the 'encodingType' attribute
+        Type: The type associated with the 'encodingType' attribute
     """
     encoding_type = element.get("encodingType", '')
     if not encoding_type:
@@ -428,6 +428,7 @@ def parse_dimension_type(node, ctx: ParsingContext) -> Composite:
 
     Args:
         node (Element): The XML element to parse.
+        ctx (ParsingContext): The context of parsing.
 
     Returns:
         str: The value of the 'dimensionType' attribute.

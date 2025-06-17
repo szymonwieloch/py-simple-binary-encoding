@@ -8,5 +8,7 @@ class Ref(FixedLengthElement):
     This is used to refer to other defined types.
     """
     
-    type_: str  # The type this reference points to
+    type_name: str
+    type_: FixedLengthElement = None  # The type this reference points to. Set lazily
     offset: int|None = None  # Offset in bytes, if applicable
+    

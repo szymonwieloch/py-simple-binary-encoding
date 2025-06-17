@@ -13,7 +13,9 @@ from ..schema import (
     Group,
     Data,
     Field,
+    builtin
 )
+
 from lxml.etree import Element
 from .attributes import (
     parse_name,
@@ -43,12 +45,13 @@ from lxml.etree import XMLParser, parse
 from lxml import ElementInclude
 
 
-def parse_valid_value(val_val: Element) -> ValidValue:
+def parse_valid_value(val_val: Element, encoding_type: str) -> ValidValue:
     """
     Parses a validValue element from XML.
 
     Args:
         val_val (Element): The XML element representing a valid value.
+        encoding_type (Type): The encoding type for this enum.
 
     Returns:
         ValidValue: An instance of ValidValue with parsed attributes.
@@ -57,7 +60,7 @@ def parse_valid_value(val_val: Element) -> ValidValue:
         raise SchemaParsingError(f"Expected 'validValue' tag, got '{val_val.tag}'")
     name = parse_name(val_val)
     description = parse_description(val_val)
-    value = int(val_val.text)
+    value = val_val.text.encode('ascii') if encoding_type == 'char' else int(val_val.text)
     since_version = parse_since_version(val_val)
     deprecated = parse_deprecated(val_val)
 
@@ -89,7 +92,7 @@ def parse_enum(node: Element) -> Enum:
     encoding_type = parse_encoding_type(node)
     offset = parse_offset(node)
 
-    valid_values = [parse_valid_value(vv) for vv in node]
+    valid_values = [parse_valid_value(vv, encoding_type) for vv in node]
 
     # names and values must be unique
     if len(valid_values) != len(set(vv.name for vv in valid_values)):
@@ -103,7 +106,7 @@ def parse_enum(node: Element) -> Enum:
         since_version=since_version,
         deprecated=deprecated,
         valid_values=valid_values,
-        encoding_type=encoding_type,
+        encoding_type_name=encoding_type,
         offset=offset,
     )
 
@@ -145,6 +148,7 @@ def parse_set(node: Element) -> Set:
     """Parses a set element from XML.
     Args:
         node (Element): The XML element representing a set.
+        ctx (ParsingContext): The context of parsing.
     Returns:
         Set: An instance of Set with parsed attributes.
     """
@@ -171,7 +175,7 @@ def parse_set(node: Element) -> Set:
         since_version=since_version,
         deprecated=deprecated,
         offset=offset,
-        encoding_type=encoding_type,
+        encoding_type_name=encoding_type,
         choices=choices,
     )
 
@@ -211,7 +215,7 @@ def parse_type(node: Element) -> Type:
     )
 
 
-def parse_ref(node: Element, ctx: ParsingContext) -> Ref:
+def parse_ref(node: Element) -> Ref:
     """
     Parses a ref element from XML.
 
@@ -230,11 +234,11 @@ def parse_ref(node: Element, ctx: ParsingContext) -> Ref:
     offset = parse_offset(node)
 
     return Ref(
-        name=name, description=description, type_=ctx.types[type_], offset=offset
+        name=name, description=description, type_name=type_, offset=offset
     )
 
 
-def parse_composite_element(node: Element, ctx: ParsingContext) -> FixedLengthElement:
+def parse_composite_element(node: Element) -> FixedLengthElement:
     """
     Parses a composite element from XML.
 
@@ -252,14 +256,14 @@ def parse_composite_element(node: Element, ctx: ParsingContext) -> FixedLengthEl
         case "set":
             return parse_set(node)
         case "ref":
-            return parse_ref(node, ctx)
+            return parse_ref(node)
         case "composite":
-            return parse_composite(node, ctx)
+            return parse_composite(node)
 
     raise SchemaParsingError(f"Unknown composite element type: {node.tag}")
 
 
-def parse_composite(node: Element, ctx: ParsingContext) -> Composite:
+def parse_composite(node: Element) -> Composite:
     """
     Parses a composite element from XML.
 
@@ -278,7 +282,7 @@ def parse_composite(node: Element, ctx: ParsingContext) -> Composite:
     deprecated = parse_deprecated(node)
     offset = parse_offset(node)
 
-    elements = [parse_composite_element(child, ctx) for child in node]
+    elements = [parse_composite_element(child) for child in node]
 
     return Composite(
         name=name,
@@ -297,8 +301,9 @@ def parse_message_schema(node: Element) -> MessageSchema:
     Returns:
         MessageSchema: An instance of MessageSchema with parsed attributes.
     """
-    if node.tag != "messageSchema":
-        raise SchemaParsingError(f"Expected 'messageSchema' tag, got '{node.tag}'")
+    # TODO: check taq, including the schema namespace
+    # if node.tag != "messageSchema":
+    #     raise SchemaParsingError(f"Expected 'messageSchema' tag, got '{node.tag}'")
 
     package = parse_package(node)
     version = parse_version(node)
@@ -327,8 +332,9 @@ def parse_message(node: Element, ctx: ParsingContext) -> Message:
     Returns:
         Message: An instance of Message with parsed attributes.
     """
-    if node.tag != "message":
-        raise SchemaParsingError(f"Expected 'message' tag, got '{node.tag}'")
+    # TODO: read with namespace check
+    # if node.tag != "message":
+    #     raise SchemaParsingError(f"Expected 'message' tag, got '{node.tag}'")
 
     id_ = parse_id(node)
     name = parse_name(node)
@@ -502,10 +508,33 @@ def parse_elements(node: Element, ctx: ParsingContext) -> tuple[list[Field], lis
     return fields, groups, datas
 
 
+def parse_type_node(node:Element, ctx: ParsingContext) -> FixedLengthElement:
+    match node.tag:
+        case 'type':
+            return parse_type(node)
+        case 'enum':
+            return parse_enum(node)
+        case 'set':
+            return parse_set(node)
+        case 'composite':
+            return parse_composite(node)
+
+
 def parse_schema(path) -> MessageSchema:
     """Parses te SBE 2.0 schema file"""
     with open (path, 'rb') as file:
-        parser = XMLParser(remote_comments=True)
-        root = parser(file, parser=parser).getroot()
+        parser = XMLParser(remove_comments=True)
+        root = parse(file, parser=parser).getroot()
     ElementInclude.include(root)
     schema = parse_message_schema(root)
+    
+    ctx = ParsingContext(types=schema.types)
+    
+    for types in root.iter('types'):
+        for type_ in types:
+            type_def = parse_type_node(type_, ctx)
+            ctx.types.add(type_def)
+    
+    # TODO: parse <messages> and apply namespace
+    for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):
+        parse_message(msg, ctx)

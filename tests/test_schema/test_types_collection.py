@@ -22,7 +22,7 @@ def test_types_get():
         
 def test_types_add():
     types_ = Types()
-    new_type = Enum(name="NewType", encoding_type="int", description="", valid_values=[])
+    new_type = Enum(name="NewType", encoding_type_name="int", description="", valid_values=[])
     types_.add(new_type)
     
     assert len(types_) > 0

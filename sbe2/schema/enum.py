@@ -1,5 +1,7 @@
 from .common import FixedLengthElement, Element
+from .type import Type
 from dataclasses import dataclass
+from functools import cached_property
 
 @dataclass
 class ValidValue(Element):
@@ -8,7 +10,7 @@ class ValidValue(Element):
     This is used to define the named values in an enum.
     """
     
-    value: int  # The integer value associated with this name
+    value: int | bytes  # The integer or char value associated with this name
     since_version: int = 0  # Version since this value is present
     deprecated: int | None = None  # Version this value was deprecated, if applicable
 
@@ -20,7 +22,13 @@ class Enum(FixedLengthElement):
     """
     
     valid_values: list[ValidValue]
-    encoding_type:str # The encoding type for the enum values
+    
+    encoding_type_name: str # The name of encoding type for the enum values
+    encoding_type:Type = None # The encoding type for the enum values. Set lazily.
     since_version: int = 0  # Version since this enum is present
     deprecated: int|None = None  # Version this enum was deprecated, if applicable  
     offset: int|None = None  # Offset in bytes, if applicable
+    
+    @cached_property
+    def total_length(self):
+        return self.encoding_type.total_length
