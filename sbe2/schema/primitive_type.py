@@ -12,6 +12,7 @@ class PrimitiveType:
     max_value: int | float | str  # Maximum value for the primitive type
     min_value: int | float | str  # Minimum value for the primitive type
     default_null_value: int | float | str  # Default null value for the primitive type
+    base_type: type # Python type equivalent
     
     by_name: ClassVar[dict[str, "PrimitiveType"]] = {}
 

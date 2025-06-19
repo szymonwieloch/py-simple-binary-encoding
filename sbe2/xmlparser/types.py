@@ -38,11 +38,13 @@ from .attributes import (
     parse_semantic_type,
     parse_block_length,
     parse_dimension_type,
+    parse_value_ref
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
 from lxml.etree import XMLParser, parse
 from lxml import ElementInclude
+from typing import Any
 
 
 def parse_valid_value(val_val: Element, encoding_type: str) -> ValidValue:
@@ -51,6 +53,7 @@ def parse_valid_value(val_val: Element, encoding_type: str) -> ValidValue:
 
     Args:
         val_val (Element): The XML element representing a valid value.
+        enum (Enum): The enumeration type this ValidValue is part of.
         encoding_type (Type): The encoding type for this enum.
 
     Returns:
@@ -93,6 +96,7 @@ def parse_enum(node: Element) -> Enum:
     offset = parse_offset(node)
 
     valid_values = [parse_valid_value(vv, encoding_type) for vv in node]
+    
 
     # names and values must be unique
     if len(valid_values) != len(set(vv.name for vv in valid_values)):
@@ -100,7 +104,7 @@ def parse_enum(node: Element) -> Enum:
     if len(valid_values) != len(set(vv.value for vv in valid_values)):
         raise SchemaParsingError(f"Duplicate valid value values found in enum '{name}'")
 
-    return Enum(
+    enum =  Enum(
         name=name,
         description=description,
         since_version=since_version,
@@ -109,6 +113,9 @@ def parse_enum(node: Element) -> Enum:
         encoding_type_name=encoding_type,
         offset=offset,
     )
+    for vv in valid_values:
+        vv.enum = enum
+    return enum
 
 
 def parse_choice(node: Element) -> Choice:
@@ -361,6 +368,29 @@ def parse_message(node: Element, ctx: ParsingContext) -> Message:
         datas=datas,
     )
     
+def value_ref_to_valid_value(value_ref:str, ctx:ParsingContext) -> ValidValue:
+    try:
+        enum_name, valid_value = value_ref.split('.')
+        enum = ctx.types[enum_name]
+        if not isinstance(enum, Enum):
+            raise ValueError(f"'{enum_name}' type is not enum")
+        for vv in enum.valid_values:
+            if vv.name == valid_value:
+                return vv
+        raise ValueError(f"Enum '{enum_name}' does not contain value '{valid_value}'")
+    except Exception as e:
+        raise SchemaParsingError(f"Invalid value reference: '{value_ref}'") from e
+    
+def field_constant_value(value_ref: str, text: str, type_: FixedLengthElement, ctx: ParsingContext) -> Any:
+    value_ref = value_ref or (type_.value_ref if isinstance(type_, Type) else None)
+    const_val = text or (type_.const_val if isinstance(type_, Type) else None)
+    if bool(value_ref) == bool(const_val):
+        raise SchemaParsingError(f"Exactly one of `valueRef' attribute or constant value needs to be defined for the '{node}' field")
+    if value_ref:
+        return value_ref_to_valid_value(value_ref, ctx).value
+    else:
+        return type_.parse(const_val)
+    
     
 def parse_field(node: Element, ctx: ParsingContext) -> Field:
     """
@@ -378,27 +408,28 @@ def parse_field(node: Element, ctx: ParsingContext) -> Field:
     id_ = parse_id(node)
     name = parse_name(node)
     description = parse_description(node)
-    type_ = parse_type_attr(node)
+    type_ = ctx.types[parse_type_attr(node)]
     presence = parse_presence(node)
     offset = parse_offset(node)
     since_version = parse_since_version(node)
     deprecated = parse_deprecated(node)
     alignment = parse_alignment(node)
-    
-    # TODO: value_ref and constant_value parsing
+    value_ref = parse_value_ref(node)
+    text = node.text
+    const_val = field_constant_value(value_ref, text, type_, ctx) if presence is Presence.CONSTANT else None
     
     return Field(
         id=id_,
         name=name,
         description=description,
-        type=ctx.types[type_],
+        type=type_,
         presence=presence,
         offset=offset,
         since_version=since_version,
         deprecated=deprecated,
         alignment=alignment,
-        value_ref=None,
-        constant_value=None,
+        value_ref=value_ref,
+        constant_value=const_val,
     )
     
     

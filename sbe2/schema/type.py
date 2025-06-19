@@ -16,7 +16,14 @@ class Type(FixedLengthElement):
     offset: int | None = None # Offset in bytes, if applicable
     since_version: int = 0  # Version since this type is present
     deprecated: int | None = None  # Version this type was deprecated, if applicable
+    value_ref: str | None = None # constant value reference
+    const_val: str | None = None # constant value
     
     @cached_property
     def total_length(self):
         return self.primitive_type.length
+    
+    def parse(self, val: str):
+        if self.length == 1:
+            return self.primitive_type.base_type(val)
+        raise NotImplementedError

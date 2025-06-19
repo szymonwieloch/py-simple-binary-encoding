@@ -13,6 +13,7 @@ class ValidValue(Element):
     value: int | bytes  # The integer or char value associated with this name
     since_version: int = 0  # Version since this value is present
     deprecated: int | None = None  # Version this value was deprecated, if applicable
+    enum: 'Enum' = None # set lazily during parsing
 
 @dataclass
 class Enum(FixedLengthElement):
