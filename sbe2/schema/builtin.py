@@ -1,47 +1,22 @@
-from .primitive_type import PrimitiveType
+from .primitive_type import (
+    PrimitiveType,
+    char as pchar,
+    int8 as pint8,
+    int_ as pint,
+    int16 as pint16,
+    int32 as pint32,
+    int64 as pint64,
+    uint8 as puint8,
+    uint16 as puint16,
+    uint32 as puint32,
+    uint64 as puint64,
+    float_ as pfloat,
+    double as pdouble,
+)
 from .composite import Composite
 from .type import Type
-from.common import Presence
+from .common import Presence
 
-char = PrimitiveType(name='char', length=1, max_value=126, min_value=26, default_null_value=0, base_type=str)
-int_ = PrimitiveType(name='int', length=4, max_value=2**31-1, min_value=-(2**31-1), default_null_value=-(2**31), base_type=int)
-int8 = PrimitiveType(name='int8', length=1, max_value=127, min_value=-127, default_null_value=-128, base_type=int)
-int16 = PrimitiveType(name='int16', length=2, max_value=(2**15-1), min_value=-(2**15-1), default_null_value=-(2**15), base_type=int)
-int32 = PrimitiveType(name='int32', length=4, max_value=(2**31-1), min_value=-(2**31-1), default_null_value=-(2**31), base_type=int)
-int64 = PrimitiveType(name='int64', length=8, max_value=(2**63-1), min_value=-(2**63-1), default_null_value=-(2**63), base_type=int)
-uint8 = PrimitiveType(name='uint8', length=1, max_value=2**8-2, min_value=0, default_null_value=2**8-1, base_type=int)
-uint16 = PrimitiveType(name='uint16', length=2, max_value=2**16-2, min_value=0, default_null_value=2**16-1, base_type=int)
-uint32 = PrimitiveType(name='uint32', length=4, max_value=2**32-2, min_value=0, default_null_value=2**32-1, base_type=int)
-uint64 = PrimitiveType(name='uint64', length=8, max_value=2**64-2, min_value=0, default_null_value=2**64-1, base_type=int)
-float_ = PrimitiveType(name='float', length=4, max_value=float('inf'), min_value=-float('inf'), default_null_value=float('nan'), base_type=float)
-double = PrimitiveType(name='double', length=8, max_value=float('inf'), min_value=-float('inf'), default_null_value=float('nan'), base_type=float)
-
-decimal = Composite(
-    name='decimal',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64, presence=Presence.REQUIRED, description=''),
-        Type(name='exponent', primitive_type=int8, presence=Presence.REQUIRED, description=''),
-    ]
-)
-
-decimal32 = Composite(
-    name='decimal32',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64, presence=Presence.REQUIRED, description=''),
-        Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT, description='', const_val=-2),
-    ]
-)
-
-decimal64 = Composite(
-    name='decimal64',
-    description='',
-    elements=[
-        Type(name='mantissa', primitive_type=int64, presence=Presence.REQUIRED, description=''),
-        Type(name='exponent', primitive_type=int8, presence=Presence.CONSTANT, description='', const_val=-2),
-    ]
-)
 
 def primitive_type_to_type(primitive_type: PrimitiveType) -> Type:
     """
@@ -61,5 +36,97 @@ def primitive_type_to_type(primitive_type: PrimitiveType) -> Type:
         since_version=0,
         deprecated=None,
         description=primitive_type.name,
-        offset=None
+        offset=None,
     )
+
+
+char = primitive_type_to_type(pchar)
+int_ = primitive_type_to_type(pint)
+int8 = primitive_type_to_type(pint8)
+int16 = primitive_type_to_type(pint16)
+int32 = primitive_type_to_type(pint32)
+int64 = primitive_type_to_type(pint64)
+uint8 = primitive_type_to_type(puint8)
+uint16 = primitive_type_to_type(puint16)
+uint32 = primitive_type_to_type(puint32)
+uint64 = primitive_type_to_type(puint64)
+float_ = primitive_type_to_type(pfloat)
+double = primitive_type_to_type(pdouble)
+
+
+decimal = Composite(
+    name="decimal",
+    description="",
+    elements=[
+        Type(
+            name="mantissa",
+            primitive_type=int64,
+            presence=Presence.REQUIRED,
+            description="",
+        ),
+        Type(
+            name="exponent",
+            primitive_type=int8,
+            presence=Presence.REQUIRED,
+            description="",
+        ),
+    ],
+)
+
+decimal32 = Composite(
+    name="decimal32",
+    description="",
+    elements=[
+        Type(
+            name="mantissa",
+            primitive_type=int64,
+            presence=Presence.REQUIRED,
+            description="",
+        ),
+        Type(
+            name="exponent",
+            primitive_type=int8,
+            presence=Presence.CONSTANT,
+            description="",
+            const_val=-2,
+        ),
+    ],
+)
+
+decimal64 = Composite(
+    name="decimal64",
+    description="",
+    elements=[
+        Type(
+            name="mantissa",
+            primitive_type=int64,
+            presence=Presence.REQUIRED,
+            description="",
+        ),
+        Type(
+            name="exponent",
+            primitive_type=int8,
+            presence=Presence.CONSTANT,
+            description="",
+            const_val=-2,
+        ),
+    ],
+)
+
+__all__ = (
+    'char',
+    'int_',
+    'int8',
+    'int16',
+    'int32',
+    'int64',
+    'uint8',
+    'uint16',
+    'uint32',
+    'uint64',
+    'float_',
+    'double',
+    'decimal',
+    'decimal32',
+    'decimal64'
+)

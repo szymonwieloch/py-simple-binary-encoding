@@ -3,7 +3,7 @@ from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, pa
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
-from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence, MessageSchema, ByteOrder
+from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence, MessageSchema, ByteOrder, primitive_type
 from sbe2.schema import builtin
 
 
@@ -184,7 +184,7 @@ def test_parse_composite():
     assert len(composite.elements) == 5
     assert type(composite.elements[0]) == Type
     assert composite.elements[0].name == "Field1"
-    assert composite.elements[0].primitive_type is builtin.int_
+    assert composite.elements[0].primitive_type is primitive_type.int_
     assert composite.elements[0].offset == 0
     assert type(composite.elements[1]) == Set
     assert composite.elements[1].name == "Field2"
@@ -217,7 +217,7 @@ def test_parse_composite():
     assert len(composite.elements[4].elements) == 1
     assert type(composite.elements[4].elements[0]) == Type
     assert composite.elements[4].elements[0].name == "NestedField"
-    assert composite.elements[4].elements[0].primitive_type is builtin.float_
+    assert composite.elements[4].elements[0].primitive_type is primitive_type.float_
     assert composite.elements[4].elements[0].offset == 0
     
 
@@ -229,7 +229,7 @@ def test_parse_type():
     )
     type_ = parse_type(node)
     assert type_.name == "TestType"
-    assert type_.primitive_type is builtin.int_
+    assert type_.primitive_type is primitive_type.int_
     assert type_.since_version == 1
     assert type_.deprecated == 2
     assert type_.description == "Test Type"
@@ -343,15 +343,15 @@ def test_parse_message_elements():
     assert len(message.fields) == 1
     assert message.fields[0].id == 2
     assert message.fields[0].name == "Field1"
-    assert message.fields[0].type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert message.fields[0].type == builtin.int_
     assert len(message.groups) == 1
     assert message.groups[0].id == 3
     assert message.groups[0].name == "SubGroup"
-    assert message.groups[0].dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert message.groups[0].dimension_type == builtin.int_
     assert len(message.datas) == 1
     assert message.datas[0].id == 4
     assert message.datas[0].name == "Data1"
-    assert message.datas[0].type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert message.datas[0].type_ == builtin.int_
     
 def test_parse_field():
     node = xml(
@@ -364,7 +364,7 @@ def test_parse_field():
     assert field.id == 1
     assert field.name == "TestField"
     assert field.description == "This is a test field"
-    assert field.type == builtin.primitive_type_to_type(builtin.int_) # TODO: create easy access to builtin types
+    assert field.type == builtin.int_
     assert field.offset == 0
     assert field.alignment == 4
     assert field.presence == Presence.REQUIRED
@@ -385,7 +385,7 @@ def test_parse_data():
     assert data.id == 123
     assert data.name == "TestData"
     assert data.description == "This is a test data"
-    assert data.type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert data.type_ == builtin.int_
     assert data.semantic_type == "text"
     assert data.since_version == 1
     assert data.deprecated == 2
@@ -407,7 +407,7 @@ def test_parse_group_attributes():
     assert len(group.fields) == 0
     assert len(group.groups) == 0
     assert len(group.datas) == 0
-    assert group.dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert group.dimension_type == builtin.int_
     assert group.since_version == 1
     assert group.deprecated == 2
     
@@ -426,12 +426,12 @@ def test_parse_group_elements():
     assert len(group.fields) == 1
     assert group.fields[0].id == 2
     assert group.fields[0].name == "Field1"
-    assert group.fields[0].type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert group.fields[0].type == builtin.int_
     assert len(group.groups) == 1
     assert group.groups[0].id == 3
     assert group.groups[0].name == "SubGroup"
-    assert group.groups[0].dimension_type == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert group.groups[0].dimension_type == builtin.int_
     assert len(group.datas) == 1
     assert group.datas[0].id == 4
     assert group.datas[0].name == "Data1"
-    assert group.datas[0].type_ == builtin.primitive_type_to_type(builtin.int_)  # TODO: create easy access to builtin types
+    assert group.datas[0].type_ == builtin.int_

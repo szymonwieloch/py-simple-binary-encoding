@@ -1,5 +1,5 @@
 from sbe2.schema import Types, Enum
-from sbe2.schema.builtin import decimal, decimal32, decimal64,primitive_type_to_type, int_
+from sbe2.schema.builtin import decimal, decimal32, decimal64, int_
 from pytest import raises
 
 
@@ -10,7 +10,7 @@ def test_types_initialization():
     assert types_['decimal'] == decimal
     assert types_['decimal32'] == decimal32
     assert types_['decimal64'] == decimal64
-    assert types_['int'] == primitive_type_to_type(int_)
+    assert types_['int'] == int_
     
     
 def test_types_get():

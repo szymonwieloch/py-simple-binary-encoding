@@ -1,5 +1,5 @@
 from .common import FixedLengthElement
-from .builtin import decimal, decimal32, decimal64, primitive_type_to_type, int16, int32, int64, int8, uint16, uint32, uint64, float_, double, char, int_, uint8
+from .builtin import decimal, decimal32, decimal64, int16, int32, int64, int8, uint16, uint32, uint64, float_, double, char, int_, uint8
 from .type import Type
 from .composite import Composite
 
@@ -15,18 +15,18 @@ class Types:
         self.add(decimal)
         self.add(decimal32)
         self.add(decimal64)
-        self.add(primitive_type_to_type(int16))
-        self.add(primitive_type_to_type(int32))
-        self.add(primitive_type_to_type(int64))
-        self.add(primitive_type_to_type(int8))
-        self.add(primitive_type_to_type(uint16))
-        self.add(primitive_type_to_type(uint32))
-        self.add(primitive_type_to_type(uint64))
-        self.add(primitive_type_to_type(float_))
-        self.add(primitive_type_to_type(double))
-        self.add(primitive_type_to_type(char))
-        self.add(primitive_type_to_type(int_))
-        self.add(primitive_type_to_type(uint8))
+        self.add(int16)
+        self.add(int32)
+        self.add(int64)
+        self.add(int8)
+        self.add(uint16)
+        self.add(uint32)
+        self.add(uint64)
+        self.add(float_)
+        self.add(double)
+        self.add(char)
+        self.add(int_)
+        self.add(uint8)
         
     def __len__(self):
         """
