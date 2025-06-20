@@ -389,22 +389,23 @@ def parse_header_type(element: Element) -> str:
         )
     return header_type
 
-def parse_package(element: Element) -> str:
+def parse_package(element: Element, required: bool = True) -> str | None:
     """
     Parses the 'package' attribute from an XML element.
 
     Args:
         element (Element): The XML element to parse.
+        required (bool): If set raises an exception on empty value.
 
     Returns:
-        str: The value of the 'package' attribute.
+        str | None: The value of the 'package' attribute.
     """
     package = element.get("package", "")
-    if not package:
+    if not package and required:
         raise SchemaParsingError(
             f"Element {element.tag} is missing 'package' attribute"
         )
-    return package
+    return package or None
 
 
 def parse_semantic_version(element: Element) -> str:

@@ -11,7 +11,7 @@ class Message(Element):
     Represents a message in the SBE schema.
     """
     id: int
-    
+    package: str
     fields: list[Field] 
     groups: list[Group] 
     datas: list[Data]

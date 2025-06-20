@@ -4,7 +4,7 @@ from pytest import raises
 def test_add_get():
     
     m = Messages()
-    msg = Message(name="TestMessage", description='', id=5, fields=[], groups=[], datas=[])
+    msg = Message(name="TestMessage", description='', id=5, fields=[], groups=[], datas=[], package='package')
     m.add(msg)
     assert m['TestMessage'] is msg
     assert m[5] is msg

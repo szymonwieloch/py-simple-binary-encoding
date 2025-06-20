@@ -331,9 +331,24 @@ def parse_message_schema(node: Element) -> MessageSchema:
         byte_order=byte_order,
         header_type=header_type,
     )
+    
+def get_package(node:Element) -> str | None:
+    """
+    Gets a <messages> tag package name for the given message.
+    """
+    curr = node
+    while True:
+        curr = curr.getparent()
+        if curr is None:
+            return None
+        if curr.tag == 'messages':
+            package = parse_package(curr, required=False)
+            if package:
+                return package
+        
 
 
-def parse_message(node: Element, ctx: ParsingContext) -> Message:
+def parse_message(node: Element, ctx: ParsingContext, default_package:str) -> Message:
     """
     Parses a message element from XML.
 
@@ -355,6 +370,7 @@ def parse_message(node: Element, ctx: ParsingContext) -> Message:
     since_version = parse_since_version(node)
     deprecated = parse_deprecated(node)
     alignment = parse_alignment(node)
+    package = get_package(node) or default_package
     
     fields, groups, datas = parse_elements(node, ctx)
     
@@ -362,6 +378,7 @@ def parse_message(node: Element, ctx: ParsingContext) -> Message:
         id=id_,
         name=name,
         description=description,
+        package=package,
         semantic_type=semantic_type,
         block_length=block_length,
         since_version=since_version,
@@ -575,4 +592,4 @@ def parse_schema(path) -> MessageSchema:
     
     # TODO: parse <messages> and apply namespace
     for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):
-        parse_message(msg, ctx)
+        parse_message(msg, ctx, schema.package)

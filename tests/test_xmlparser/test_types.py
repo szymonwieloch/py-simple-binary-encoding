@@ -314,7 +314,7 @@ def test_parse_message_attributes():
     """
     )
     ctx = ParsingContext()
-    message = parse_message(node, ctx)
+    message = parse_message(node, ctx, 'package')
     assert message.id == 1
     assert message.name == "TestMessage"
     assert message.description == "This is a test message"
@@ -326,6 +326,7 @@ def test_parse_message_attributes():
     assert message.fields == []
     assert message.groups == []
     assert message.datas == []
+    assert message.package == 'package'
     
    
 def test_parse_message_elements():
@@ -339,7 +340,7 @@ def test_parse_message_elements():
     """
     )
     ctx = ParsingContext()
-    message = parse_message(node, ctx)
+    message = parse_message(node, ctx, 'package')
     assert len(message.fields) == 1
     assert message.fields[0].id == 2
     assert message.fields[0].name == "Field1"
@@ -352,6 +353,7 @@ def test_parse_message_elements():
     assert message.datas[0].id == 4
     assert message.datas[0].name == "Data1"
     assert message.datas[0].type_ == builtin.int_
+    assert message.package == 'package'
     
 def test_parse_field():
     node = xml(
