@@ -32,3 +32,7 @@ class FixedLengthElement(Element):
         This is a placeholder and should be overridden in subclasses.
         """
         raise NotImplementedError("Subclasses must implement total_length")
+    
+    
+    def lazy_bind(self, types: 'Types') -> None:
+        raise NotImplementedError("Subclasses must implement lazy_bind")

@@ -2,6 +2,22 @@ from .common import FixedLengthElement, Presence
 from .primitive_type import PrimitiveType
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Any
+
+
+
+# TODO: move
+
+def value_ref_to_valid_value(value_ref:str, types):
+    from .enum import Enum
+    enum_name, valid_value = value_ref.split('.')
+    enum = types[enum_name]
+    if not isinstance(enum, Enum):
+        raise ValueError(f"'{enum_name}' type is not enum")
+    for vv in enum.valid_values:
+        if vv.name == valid_value:
+            return vv
+    raise ValueError(f"Enum '{enum_name}' does not contain value '{valid_value}'")
 
 @dataclass
 class Type(FixedLengthElement):
@@ -17,11 +33,24 @@ class Type(FixedLengthElement):
     since_version: int = 0  # Version since this type is present
     deprecated: int | None = None  # Version this type was deprecated, if applicable
     value_ref: str | None = None # constant value reference
-    const_val: str | None = None # constant value
+    value: str | None = None # constant value of the given field
+    const_val: Any = None # constant value translated into Python type
+    
+    def lazy_bind(self, types):
+        if self.presence is Presence.CONSTANT and self.const_val is None:
+            if self.value_ref:
+                vv = value_ref_to_valid_value(self.value_ref, types)
+                self.const_val = vv.value
+            elif self.value:
+                self.const_val = self.parse(self.value)
+            else:
+                raise ValueError(f"Type '{self.name}' is constant but does not have any constant value assigned")
     
     @cached_property
     def total_length(self):
         return self.primitive_type.length
+    
+    
     
     def parse(self, val: str):
         if self.length == 1:

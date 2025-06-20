@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from .type import Type
-
-from .common import Element
+from functools import cached_property
+from .common import Element, FixedLengthElement
 
 @dataclass
 class Choice(Element):
@@ -16,7 +16,7 @@ class Choice(Element):
     
 
 @dataclass
-class Set(Element):
+class Set(FixedLengthElement):
     """Represents a set element in the schema.
     This is used to define a collection of choices that can be selected.
     """
@@ -27,3 +27,13 @@ class Set(Element):
     offset: int | None = None
     since_version: int = 0
     deprecated: int | None = None
+    
+    
+    @cached_property
+    def total_length(self) -> int:
+        return self.encoding_type.total_length
+    
+    
+    def lazy_bind(self, types):
+        self.encoding_type = types[self.encoding_type_name]
+    

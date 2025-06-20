@@ -207,6 +207,8 @@ def parse_type(node: Element) -> Type:
     primitive_type = parse_primitive_type(node)
     offset = parse_offset(node)
     length = parse_length(node)
+    value_ref = parse_value_ref(node)
+    value = node.text
 
     presence = parse_presence(node)
 
@@ -219,6 +221,8 @@ def parse_type(node: Element) -> Type:
         offset=offset,
         presence=presence,
         length=length,
+        value_ref=value_ref,
+        value= value
     )
 
 
@@ -566,14 +570,8 @@ def parse_schema(path) -> MessageSchema:
             type_def = parse_type_node(type_)
             ctx.types.add(type_def)
     
-    # lazily bound types together
     for type_def in ctx.types:
-        if isinstance(type_def, Enum):
-            type_def.encoding_type = ctx.types.get_type(type_def.encoding_type_name)
-        elif isinstance(type_def, Set):
-            type_def.encoding_type = ctx.types.get_type(type_def.encoding_type_name)
-        elif isinstance(type_def, Ref):
-            type_def.type_ = ctx.types.get_type(type_def.type_name)
+        type_def.lazy_bind(ctx.types)
     
     # TODO: parse <messages> and apply namespace
     for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):

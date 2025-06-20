@@ -236,6 +236,9 @@ def test_parse_type():
     assert type_.offset == 0
     assert type_.presence == Presence.REQUIRED
     assert type_.length == 3
+    assert type_.const_val is None
+    assert type_.value_ref is None
+    assert type_.total_length == 4
     
     
     with raises(SchemaParsingError):
@@ -245,6 +248,46 @@ def test_parse_type():
         """
         )
         parse_type(node)  # primitiveType should be mandatory
+        
+
+def test_parse_type_const_value():
+    node = xml(
+        """
+    <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="constant">5</type>
+    """
+    )
+    type_ = parse_type(node)
+    assert type_.presence == Presence.CONSTANT
+    assert type_.value == '5'
+    assert type_.const_val is None
+    assert type_.value_ref is None
+    
+    ctx = ParsingContext()
+    type_.lazy_bind(ctx.types)
+    assert type_.const_val == 5
+    
+    
+def test_parse_type_value_ref():
+    node = xml(
+        """
+    <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="constant" valueRef="Example.Something"/>
+    """
+    )
+    type_ = parse_type(node)
+    assert type_.presence == Presence.CONSTANT
+    assert type_.value is None
+    assert type_.const_val is None
+    assert type_.value_ref == "Example.Something"
+    
+    ctx = ParsingContext()
+    enum = Enum(name="Example", description='', encoding_type_name='int', valid_values=[
+        ValidValue(name="Something", description='', value=5),
+        ValidValue(name="Nothing", description='', value=7),
+    ])
+    ctx.types.add(enum)
+    type_.lazy_bind(ctx.types)
+    assert type_.const_val == 5
+    
         
         
 def test_parse_message_schema():

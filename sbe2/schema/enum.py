@@ -33,3 +33,7 @@ class Enum(FixedLengthElement):
     @cached_property
     def total_length(self):
         return self.encoding_type.total_length
+    
+    
+    def lazy_bind(self, types):
+        self.encoding_type = types[self.encoding_type_name]
