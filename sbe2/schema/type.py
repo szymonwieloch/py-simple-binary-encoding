@@ -2,7 +2,7 @@ from .common import FixedLengthElement, Presence
 from .primitive_type import PrimitiveType
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any
+from typing import Any, override
 
 
 
@@ -47,11 +47,14 @@ class Type(FixedLengthElement):
                 raise ValueError(f"Type '{self.name}' is constant but does not have any constant value assigned")
     
     @cached_property
+    @override
     def total_length(self):
+        if self.presence is Presence.CONSTANT:
+            return 0
         return self.primitive_type.length
     
     
-    
+    @override
     def parse(self, val: str):
         if self.length == 1:
             return self.primitive_type.base_type(val)

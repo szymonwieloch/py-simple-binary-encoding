@@ -5,6 +5,7 @@ from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
 from sbe2.schema import Type, Enum, Choice, Set, Ref, ValidValue, Composite, Presence, MessageSchema, ByteOrder, primitive_type
 from sbe2.schema import builtin
+from unittest.mock import MagicMock
 
 
 

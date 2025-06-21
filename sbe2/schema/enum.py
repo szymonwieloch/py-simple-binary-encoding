@@ -2,6 +2,7 @@ from .common import FixedLengthElement, Element
 from .type import Type
 from dataclasses import dataclass
 from functools import cached_property
+from typing import override
 
 @dataclass
 class ValidValue(Element):
@@ -31,9 +32,10 @@ class Enum(FixedLengthElement):
     offset: int|None = None  # Offset in bytes, if applicable
     
     @cached_property
+    @override
     def total_length(self):
         return self.encoding_type.total_length
     
-    
+    @override
     def lazy_bind(self, types):
         self.encoding_type = types[self.encoding_type_name]

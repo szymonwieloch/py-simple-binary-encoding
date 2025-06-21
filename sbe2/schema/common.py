@@ -26,7 +26,7 @@ class FixedLengthElement(Element):
     """
    
     @property
-    def total_length(self) -> int:
+    def total_length(self) -> int: # pragma: no cover
         """
         Returns the total length of the element in bytes.
         This is a placeholder and should be overridden in subclasses.
@@ -34,5 +34,9 @@ class FixedLengthElement(Element):
         raise NotImplementedError("Subclasses must implement total_length")
     
     
-    def lazy_bind(self, types: 'Types') -> None:
+    def lazy_bind(self, types: 'Types') -> None: # pragma: no cover
+        """
+        Binds types to other types lazily, so that all types are already defined when this is called.
+        This is a placeholder and should be overridden in subclasses.
+        """
         raise NotImplementedError("Subclasses must implement lazy_bind")

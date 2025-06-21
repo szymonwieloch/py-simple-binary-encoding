@@ -25,4 +25,4 @@ class Field(FixedLengthElement):
         """
         Returns the total length of the field, which is the size of the type.
         """
-        return self.type.total_length()
+        return self.type.total_length

@@ -42,7 +42,7 @@ from .attributes import (
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
-from lxml.etree import XMLParser, parse
+from lxml.etree import XMLParser, parse, QName
 from lxml import ElementInclude
 from typing import Any
 
@@ -312,9 +312,11 @@ def parse_message_schema(node: Element) -> MessageSchema:
     Returns:
         MessageSchema: An instance of MessageSchema with parsed attributes.
     """
-    # TODO: check taq, including the schema namespace
-    # if node.tag != "messageSchema":
-    #     raise SchemaParsingError(f"Expected 'messageSchema' tag, got '{node.tag}'")
+    
+    #TODO: check namespace?
+    qname = QName(node.tag)
+    if qname.localname != "messageSchema":
+        raise SchemaParsingError(f"Expected 'messageSchema' tag, got '{qname.localname}'")
 
     package = parse_package(node)
     version = parse_version(node)
@@ -358,9 +360,10 @@ def parse_message(node: Element, ctx: ParsingContext, default_package:str) -> Me
     Returns:
         Message: An instance of Message with parsed attributes.
     """
-    # TODO: read with namespace check
-    # if node.tag != "message":
-    #     raise SchemaParsingError(f"Expected 'message' tag, got '{node.tag}'")
+    #TODO: check namespace?
+    qname = QName(node.tag)
+    if qname.localname != "message":
+        raise SchemaParsingError(f"Expected 'message' tag, got '{qname.localname}'")
 
     id_ = parse_id(node)
     name = parse_name(node)
@@ -590,6 +593,6 @@ def parse_schema(path) -> MessageSchema:
     for type_def in ctx.types:
         type_def.lazy_bind(ctx.types)
     
-    # TODO: parse <messages> and apply namespace
     for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):
         parse_message(msg, ctx, schema.package)
+    return schema

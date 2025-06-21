@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from .type import Type
 from functools import cached_property
 from .common import Element, FixedLengthElement
+from typing import override
 
 @dataclass
 class Choice(Element):
@@ -30,10 +31,11 @@ class Set(FixedLengthElement):
     
     
     @cached_property
+    @override
     def total_length(self) -> int:
         return self.encoding_type.total_length
     
-    
+    @override
     def lazy_bind(self, types):
         self.encoding_type = types[self.encoding_type_name]
     

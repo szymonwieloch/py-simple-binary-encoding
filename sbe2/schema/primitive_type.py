@@ -21,7 +21,7 @@ class PrimitiveType:
         """
         Returns True if this primitive type is a byte.
         """
-        return self.length
+        return self.length == 1
     
     
     
@@ -30,7 +30,7 @@ class PrimitiveType:
         Post-initialization to register the primitive type by its name.
         """
         if self.name in PrimitiveType.by_name:
-            raise ValueError(f"Primitive type '{self.name}' is already registered.")
+            raise ValueError(f"Primitive type '{self.name}' is already registered.") # pragma: no cover
         PrimitiveType.by_name[self.name] = self
 
 
