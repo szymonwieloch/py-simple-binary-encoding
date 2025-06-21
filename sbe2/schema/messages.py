@@ -33,6 +33,14 @@ class Messages:
         key_type = type(key)
         raise KeyError(f"Unrecognized message key type: '{key_type}'")
     
+    def __len__(self) -> int:
+        """
+        Returns the number of messages in the collection.
+        """
+        return len(self._by_id)
+    
+
+    
     def get(self, key: int|str) -> Message | None:
         """
         Returns Message by ID or name

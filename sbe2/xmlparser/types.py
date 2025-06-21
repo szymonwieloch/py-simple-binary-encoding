@@ -324,6 +324,7 @@ def parse_message_schema(node: Element) -> MessageSchema:
     id_ = parse_id(node)
     byte_order = parse_byte_order(node)
     header_type = parse_header_type(node)
+    description = parse_description(node)
 
     return MessageSchema(
         package=package,
@@ -331,7 +332,8 @@ def parse_message_schema(node: Element) -> MessageSchema:
         semantic_version=semantic_version,
         id=id_,
         byte_order=byte_order,
-        header_type=header_type,
+        header_type_name=header_type,
+        description=description,
     )
     
 def get_package(node:Element) -> str | None:
@@ -574,12 +576,18 @@ def parse_type_node(node:Element) -> FixedLengthElement:
         case 'composite':
             return parse_composite(node)
 
-
-def parse_schema(path) -> MessageSchema:
-    """Parses te SBE 2.0 schema file"""
-    with open (path, 'rb') as file:
-        parser = XMLParser(remove_comments=True)
-        root = parse(file, parser=parser).getroot()
+def parse_schema_fd(fd) -> MessageSchema:
+    """
+    Parses an SBE schema from a file descriptor.
+    Args:
+        fd (file-like object): File descriptor containing the XML data.
+    Returns:
+        MessageSchema: An instance of MessageSchema with parsed attributes.
+    Raises:
+        SchemaParsingError: If the schema cannot be parsed.
+    """
+    parser = XMLParser(remove_comments=True)
+    root = parse(fd, parser=parser).getroot()
     ElementInclude.include(root)
     schema = parse_message_schema(root)
     
@@ -592,7 +600,36 @@ def parse_schema(path) -> MessageSchema:
     
     for type_def in ctx.types:
         type_def.lazy_bind(ctx.types)
+        
+    schema.header_type = schema.types.get_composite(schema.header_type_name)
     
     for msg in root.iterfind('.//sbe:message', namespaces=root.nsmap):
-        parse_message(msg, ctx, schema.package)
+        m = parse_message(msg, ctx, schema.package)
+        schema.messages.add(m)
+
     return schema
+
+def parse_schema(path=None, fd=None, text=None) -> MessageSchema:
+    """
+    Parses an SBE schema from an XML file or string.
+    Args:
+        path (str, optional): Path to the XML file containing the schema.
+        fd (file-like object, optional): File-like object containing the XML data.
+        text (str, optional): String containing the XML data.
+    Returns:
+        MessageSchema: An instance of MessageSchema with parsed attributes.
+    Raises:
+        SchemaParsingError: If the schema cannot be parsed.
+    """
+    args = sum(1 for arg in (path, fd, text) if arg is not None)
+    if args != 1:
+        raise ValueError("Exactly one of 'path', 'fd', or 'text' must be provided")
+    
+    if path is not None:
+        with open (path, 'rb') as file:
+            return parse_schema_fd(file)
+    elif fd is not None:
+        return parse_schema_fd(fd)
+    elif text is not None:
+        from io import StringIO
+        return parse_schema_fd(StringIO(text))

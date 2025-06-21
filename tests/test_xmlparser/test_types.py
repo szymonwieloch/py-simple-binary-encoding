@@ -1,5 +1,5 @@
 from lxml.etree import XML as xml
-from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema, parse_message, parse_field, parse_data, parse_group
+from sbe2.xmlparser.types import parse_valid_value, parse_enum, parse_choice, parse_set, parse_ref, parse_composite, parse_type, parse_message_schema, parse_message, parse_field, parse_data, parse_group, parse_schema
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from pytest import raises
@@ -8,8 +8,18 @@ from sbe2.schema import builtin
 from unittest.mock import MagicMock
 
 
+INVALID_NODE = xml(
+    """
+    <invalid />
+    """
+)
+
+
 
 def test_parse_valid_value():
+    with raises(SchemaParsingError):
+        parse_valid_value(INVALID_NODE, 'int')
+        
     node = xml(
         '<validValue name="something" sinceVersion="5" deprecated="8" description="blah" >5</validValue>'
     )
@@ -22,6 +32,9 @@ def test_parse_valid_value():
 
 
 def test_parse_enum():
+    with raises(SchemaParsingError):
+        parse_enum(INVALID_NODE)
+    
     node = xml(
         """
     <enum name="TestEnum" sinceVersion="1" deprecated="2" description="Test Enum" encodingType="int" offset="0">
@@ -68,6 +81,9 @@ def test_parse_enum():
 
 
 def test_parse_choice():
+    with raises(SchemaParsingError):
+        parse_choice(INVALID_NODE)
+        
     node = xml(
         """
     <choice name="TestChoice" sinceVersion="1" deprecated="2" description="Test Choice">6</choice>
@@ -90,6 +106,9 @@ def test_parse_choice():
 
 
 def test_parse_set():
+    with raises(SchemaParsingError):
+        parse_set(INVALID_NODE)
+
     node = xml(
         """
     <set name="TestSet" sinceVersion="1" deprecated="2" description="Test Set" encodingType="int" offset="0">
@@ -136,6 +155,9 @@ def test_parse_set():
 
 
 def test_parse_ref():
+    with raises(SchemaParsingError):
+        parse_ref(INVALID_NODE)
+
     node = xml(
         """
     <ref name="TestRef" description="Test Reference" type="int" offset="56"/>
@@ -157,6 +179,9 @@ def test_parse_ref():
         
         
 def test_parse_composite():
+    with raises(SchemaParsingError):
+        parse_composite(INVALID_NODE)
+
     node = xml(
         """
     <composite name="TestComposite" sinceVersion="1" deprecated="2" description="Test Composite" offset="0">
@@ -223,6 +248,9 @@ def test_parse_composite():
     
 
 def test_parse_type():
+    with raises(SchemaParsingError):
+        parse_type(INVALID_NODE)
+    
     node = xml(
         """
     <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="required" length="3" />
@@ -269,6 +297,9 @@ def test_parse_type_const_value():
     
     
 def test_parse_type_value_ref():
+    with raises(SchemaParsingError):
+        parse_type(INVALID_NODE)
+        
     node = xml(
         """
     <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="constant" valueRef="Example.Something"/>
@@ -292,6 +323,9 @@ def test_parse_type_value_ref():
         
         
 def test_parse_message_schema():
+    with raises(SchemaParsingError):
+        parse_message_schema(INVALID_NODE)
+    
     node = xml(
         """
     <messageSchema version="1" package="test.package" headerType="myHeader" byteOrder="bigEndian" id="123" semanticVersion="1.0.0">
@@ -301,7 +335,7 @@ def test_parse_message_schema():
     ms = parse_message_schema(node)
     assert ms.version == 1
     assert ms.package == "test.package"
-    assert ms.header_type == "myHeader"
+    assert ms.header_type_name == "myHeader"
     assert ms.byte_order == ByteOrder.BIG_ENDIAN
     assert ms.id == 123
     assert ms.semantic_version == "1.0.0"
@@ -357,6 +391,9 @@ def test_parse_message_elements():
     assert message.package == 'package'
     
 def test_parse_field():
+    with raises(SchemaParsingError):
+        parse_field(INVALID_NODE, ParsingContext())
+        
     node = xml(
         """
     <field id="1" name="TestField" description="This is a test field" type="int" offset="0" alignment="4" presence="required" sinceVersion="1" deprecated="2" />
@@ -378,6 +415,9 @@ def test_parse_field():
     
     
 def test_parse_data():
+    with raises(SchemaParsingError):
+        parse_data(INVALID_NODE, ParsingContext())
+        
     node = xml(
         """
     <data id="123" name="TestData" description="This is a test data" type="int" semanticType="text" sinceVersion="1" deprecated="2" />
@@ -395,6 +435,9 @@ def test_parse_data():
     
     
 def test_parse_group_attributes():
+    with raises(SchemaParsingError):
+        parse_group(INVALID_NODE, ParsingContext())    
+
     node = xml(
         """
     <group name="TestGroup" id="1" description="This is a test group" semanticType="test" blockLength="8" sinceVersion="1" deprecated="2" dimensionType="int">
@@ -438,3 +481,42 @@ def test_parse_group_elements():
     assert group.datas[0].id == 4
     assert group.datas[0].name == "Data1"
     assert group.datas[0].type_ == builtin.int_
+    
+    
+def test_parse_schema_empty():
+    node ="""
+        <sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   xmlns:xi="http://www.w3.org/2001/XInclude"
+                   package="baseline"
+                   id="1"
+                   version="0"
+                   semanticVersion="5.2"
+                   description="Example base schema which can be extended."
+                   byteOrder="littleEndian">
+            <types>
+                <composite name="messageHeader" description="Template ID and length of message root">
+                    <type name="blockLength" primitiveType="uint16"/>
+                    <type name="templateId" primitiveType="uint16"/>
+                    <type name="schemaId" primitiveType="uint16"/>
+                    <type name="version" primitiveType="uint16"/>
+                    <type name="numGroups" primitiveType="uint16" />
+                    <type name="numVarDataFields" primitiveType="uint16" />
+                </composite>
+            </types>
+            <messages package="somepackage">
+            </messages>
+        </sbe:messageSchema>
+    """
+    from io import StringIO
+    schema = parse_schema(text=node)
+    assert schema.version == 0
+    assert schema.semantic_version == "5.2"
+    assert schema.id == 1
+    assert schema.description == "Example base schema which can be extended."
+    assert schema.byte_order == ByteOrder.LITTLE_ENDIAN
+    assert schema.package == "baseline"
+    assert schema.types['messageHeader'] is not None
+    assert len(schema.messages) == 0
+    
+    schema2 = parse_schema(fd=StringIO(node))
+   
