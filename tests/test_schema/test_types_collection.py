@@ -45,6 +45,15 @@ def test_iter():
     
 def test_get_composite_type():
     types = Types()
-    assert types.get_type('int') is not None
+    assert types.get('int') is not None
     with raises(ValueError):
         types.get_composite('int')
+        
+    types.get_composite('decimal') is not None
+        
+def test_get_type():
+    types = Types()
+    assert types.get('decimal') is not None
+    with raises(ValueError):
+        assert types.get_type('decimal')
+    types.get_type('int') is not None

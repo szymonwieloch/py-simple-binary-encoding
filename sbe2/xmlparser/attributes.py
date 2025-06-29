@@ -440,4 +440,9 @@ def parse_dimension_type(node, ctx: ParsingContext) -> Composite:
             f"Element {node.tag} is missing 'dimensionType' attribute"
         )
     # TODO: validate that the composite meets requirements for a dimension type
-    return ctx.types[dimension_type]
+    try:
+        return ctx.types.get_composite(dimension_type)
+    except Exception as e:
+        raise SchemaParsingError(
+            f"Unknown or invalid dimension type '{dimension_type}' in element {node.tag}"
+        ) from e

@@ -369,7 +369,7 @@ def test_parse_message_elements():
         """
     <message id="1" name="TestMessage">
         <field id="2" name="Field1" type="int"/>
-        <group id="3" name="SubGroup" dimensionType="int"/>
+        <group id="3" name="SubGroup" dimensionType="decimal"/>
         <data id="4" name="Data1" type="int"/>
     </message>
     """
@@ -383,7 +383,7 @@ def test_parse_message_elements():
     assert len(message.groups) == 1
     assert message.groups[0].id == 3
     assert message.groups[0].name == "SubGroup"
-    assert message.groups[0].dimension_type == builtin.int_
+    assert message.groups[0].dimension_type == builtin.decimal
     assert len(message.datas) == 1
     assert message.datas[0].id == 4
     assert message.datas[0].name == "Data1"
@@ -440,7 +440,7 @@ def test_parse_group_attributes():
 
     node = xml(
         """
-    <group name="TestGroup" id="1" description="This is a test group" semanticType="test" blockLength="8" sinceVersion="1" deprecated="2" dimensionType="int">
+    <group name="TestGroup" id="1" description="This is a test group" semanticType="test" blockLength="8" sinceVersion="1" deprecated="2" dimensionType="decimal">
     </group>
     """
     )
@@ -453,16 +453,16 @@ def test_parse_group_attributes():
     assert len(group.fields) == 0
     assert len(group.groups) == 0
     assert len(group.datas) == 0
-    assert group.dimension_type == builtin.int_
+    assert group.dimension_type == builtin.decimal
     assert group.since_version == 1
     assert group.deprecated == 2
     
 def test_parse_group_elements():
     node = xml(
         """
-    <group name="TestGroup" id="1" dimensionType="int">
+    <group name="TestGroup" id="1" dimensionType="decimal">
         <field id="2" name="Field1" type="int"/>
-        <group id="3" name="SubGroup" dimensionType="int"/>
+        <group id="3" name="SubGroup" dimensionType="decimal"/>
         <data id="4" name="Data1" type="int"/>
     </group>
     """
@@ -476,7 +476,7 @@ def test_parse_group_elements():
     assert len(group.groups) == 1
     assert group.groups[0].id == 3
     assert group.groups[0].name == "SubGroup"
-    assert group.groups[0].dimension_type == builtin.int_
+    assert group.groups[0].dimension_type == builtin.decimal
     assert len(group.datas) == 1
     assert group.datas[0].id == 4
     assert group.datas[0].name == "Data1"

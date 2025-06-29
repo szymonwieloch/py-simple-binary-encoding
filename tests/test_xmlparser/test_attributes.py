@@ -22,9 +22,10 @@ from sbe2.xmlparser.attributes import (
     parse_byte_order,
     parse_header_type,
     parse_package,
-    parse_version
+    parse_version,
+    parse_dimension_type
 )
-from sbe2.schema import Presence, ByteOrder
+from sbe2.schema import Presence, ByteOrder, builtin
 from sbe2.xmlparser.errors import SchemaParsingError
 from sbe2.xmlparser.ctx import ParsingContext
 from lxml.etree import XML as xml
@@ -207,3 +208,12 @@ def test_parse_version():
         parse_version(xml("<element/>"))
     with raises(SchemaParsingError):
         parse_version(xml("<element version='invalid'/>"))
+        
+        
+def test_parse_dimension_type():
+    ctx = ParsingContext()
+    assert parse_dimension_type(xml("<element dimensionType='decimal'/>"), ctx) == builtin.decimal
+    with raises(SchemaParsingError):
+        parse_dimension_type(xml("<element dimensionType='int'/>"), ctx)
+    with raises(SchemaParsingError):
+        parse_dimension_type(xml("<element dimensionType='invalid'/>"), ctx)

@@ -63,6 +63,18 @@ class Types:
             raise KeyError(f"Type '{name}' does not exist.")
         return self._types[name]
     
+    def get(self, name: str) -> FixedLengthElement | None:
+        """
+        Retrieves a type by its name, returning None if it does not exist.
+        
+        Args:
+            name (str): The name of the type to retrieve.
+        
+        Returns:
+            FixedLengthElement | None: The type with the specified name or None if not found.
+        """
+        return self._types.get(name)
+    
     def __iter__(self):
         return iter(self._types.values())
     
