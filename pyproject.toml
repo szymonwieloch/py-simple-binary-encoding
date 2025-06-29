@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sbe2"
-version = "0.1.0"
-description = "An example Python package"
+version = "0.1.1"
+description = "Simple Binary Encoding (SBE) 2.0 library for Python with linter"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
