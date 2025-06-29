@@ -43,6 +43,7 @@ def parse_since_version(element: Element) -> int:
     Returns:
         int: The value of the 'sinceVersion' attribute, or 0 if not present.
     """
+    # TODO: must not be greater than schema version
     return int(element.get("sinceVersion", "0"))
 
 
@@ -56,6 +57,8 @@ def parse_deprecated(element: Element) -> int | None:
     Returns:
         int | None: The value of the 'deprecated' attribute, or None if not present.
     """
+    #TODO: must not be greater than schema version
+    #TODO: must be greater than sinceVersion
     deprecated = element.get("deprecated")
     try:
         return int(deprecated) if deprecated else None

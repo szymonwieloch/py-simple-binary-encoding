@@ -14,6 +14,11 @@ INVALID_NODE = xml(
     """
 )
 
+example_enum = Enum(name="Example", description='', encoding_type_name='int', valid_values=[
+        ValidValue(name="Something", description='', value=5),
+        ValidValue(name="Nothing", description='', value=7),
+    ])
+
 
 
 def test_parse_valid_value():
@@ -312,11 +317,7 @@ def test_parse_type_value_ref():
     assert type_.value_ref == "Example.Something"
     
     ctx = ParsingContext()
-    enum = Enum(name="Example", description='', encoding_type_name='int', valid_values=[
-        ValidValue(name="Something", description='', value=5),
-        ValidValue(name="Nothing", description='', value=7),
-    ])
-    ctx.types.add(enum)
+    ctx.types.add(example_enum)
     type_.lazy_bind(ctx.types)
     assert type_.const_val == 5
     
@@ -412,6 +413,38 @@ def test_parse_field():
     assert field.deprecated == 2
     assert field.value_ref is None
     assert field.constant_value is None
+    
+    
+def test_parse_field_with_value_ref():
+    node = xml(
+        """
+    <field id="1" name="TestField" type="int" presence="constant" valueRef="Example.Something"/>
+    """
+    )
+    ctx = ParsingContext()
+    ctx.types.add(example_enum)
+    field = parse_field(node, ctx)
+    assert field.id == 1
+    assert field.name == "TestField"
+    assert field.type == builtin.int_
+    assert field.presence == Presence.CONSTANT
+    assert field.value_ref == "Example.Something"
+    assert field.constant_value == 5
+    
+def test_parse_field_with_constant_value():
+    node = xml(
+        """
+    <field id="1" name="TestField" type="int" presence="constant">10</field>
+    """
+    )
+    ctx = ParsingContext()
+    field = parse_field(node, ctx)
+    assert field.id == 1
+    assert field.name == "TestField"
+    assert field.type == builtin.int_
+    assert field.presence == Presence.CONSTANT
+    assert field.value_ref is None
+    assert field.constant_value == 10
     
     
 def test_parse_data():
