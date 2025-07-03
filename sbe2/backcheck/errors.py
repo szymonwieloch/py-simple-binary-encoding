@@ -1,0 +1,32 @@
+from dataclasses import dataclass
+import enum
+
+class Error(enum.Enum):
+    """
+    Represents the type of error that can occur during schema comparison.
+    """
+    def __init__(self, id_: str, description: str):
+        self.id = id_
+        self.description = description
+        
+    SCHEMA_ID_MISMATCH = ("schema-id-mismatch", "Schema IDs do not match.")
+    SCHEMA_VERSION_MISMATCH = ("schema-version-mismatch", "Schema versions do not match. Backward compatibility check is only possible if the newer schema either has the same version or a version higher by 1.")
+    SCHEMA_PACKAGE_MISMATCH = ("schema-package-mismatch", "Schema packages do not match.")
+    SCHEMA_BYTE_ORDER_MISMATCH = ("schema-byte-order-mismatch", "Byte orders do not match.")
+    SCHEMA_SEMANTIC_VERSION_MISMATCH = ("schema-semantic-version-mismatch", "Semantic versions do not match.")
+    SCHEMA_SEMANTIC_VERSION_NOT_UPDATED = ("schema-semantic-version-not-updated", "Semantic version has not been updated, but the schema version has been updated.")
+    
+    TYPE_REMOVED = ("type-removed", "Type was removed.")
+    TYPE_ADDED = ("type-added", "Type was added to the schema even though the version has not changed.")
+    TYPE_NO_SINCE_VERSION = ("type-no-since-version", "Type has no since version attribute, but it was added to the new schema.")
+    TYPE_NO_SINCE_VERSION = ("type-no-since-version", "Type has no since version attribute, but it was added to the new schema.")
+    TYPE_WRONG_SINCE_VERSION = ("type-wrong-since-version", "Type has since version attribute, but it is wrong.")
+    
+
+@dataclass
+class Diff:
+    """
+    Represents a a difference between two schemas.
+    """
+    message: str
+    error: Error

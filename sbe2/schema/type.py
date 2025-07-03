@@ -1,8 +1,8 @@
-from .common import FixedLengthElement, Presence
+from .common import FixedLengthElement, Presence, TypeKind
 from .primitive_type import PrimitiveType
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, override
+from typing import Any, override, ClassVar
 
 
 
@@ -35,6 +35,8 @@ class Type(FixedLengthElement):
     value_ref: str | None = None # constant value reference
     value: str | None = None # constant value of the given field
     const_val: Any = None # constant value translated into Python type
+    
+    type_kind: ClassVar[TypeKind] = TypeKind.TYPE
     
     def lazy_bind(self, types):
         if self.presence is Presence.CONSTANT and self.const_val is None:

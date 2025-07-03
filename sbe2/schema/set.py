@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from .type import Type
 from functools import cached_property
-from .common import Element, FixedLengthElement
-from typing import override
+from .common import Element, FixedLengthElement, TypeKind
+from typing import override, ClassVar
 
 @dataclass
 class Choice(Element):
@@ -28,6 +28,8 @@ class Set(FixedLengthElement):
     offset: int | None = None
     since_version: int = 0
     deprecated: int | None = None
+    
+    type_kind: ClassVar[TypeKind] = TypeKind.TYPE
     
     
     @cached_property

@@ -1,6 +1,4 @@
 class {{name}}(enum.Enum):
-    {% if description %}{{description}}{% endif %}   
-{% for vv in valid_values %}    {{vv.name}} = {{vv.value}}
+    {% if description %}{{description}}{% endif %}
+{% for vv in valid_values %}    {{vv.name}} = {{vv.value}} # {{vv.description}}
 {% endfor %}
-
-  

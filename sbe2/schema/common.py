@@ -1,5 +1,6 @@
 import enum
 from dataclasses import dataclass
+from typing import ClassVar
 
 class Presence(enum.StrEnum):
     'Matches the `presence` attribute in the schema.'
@@ -18,12 +19,28 @@ class Element:
     description: str
     
     
+    
+class TypeKind(enum.StrEnum):
+    """
+    Represents the kind of type in the schema.
+    """
+    PRIMITIVE = "primitive"
+    ENUM = "enum"
+    SET = "set"
+    COMPOSITE = "composite"
+    TYPE = "type"
+    REF = "ref"
+    
+    
 @dataclass
 class FixedLengthElement(Element):
     """
     Represents an element with a fixed length in bytes.
     This is a base class for elements that have a defined size.
     """
+    
+    
+    type_kind: ClassVar[TypeKind] = None
    
     @property
     def total_length(self) -> int: # pragma: no cover

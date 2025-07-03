@@ -1,8 +1,8 @@
-from .common import FixedLengthElement, Element
+from .common import FixedLengthElement, Element, TypeKind
 from .type import Type
 from dataclasses import dataclass
 from functools import cached_property
-from typing import override
+from typing import override, ClassVar
 
 @dataclass
 class ValidValue(Element):
@@ -30,6 +30,8 @@ class Enum(FixedLengthElement):
     since_version: int = 0  # Version since this enum is present
     deprecated: int|None = None  # Version this enum was deprecated, if applicable  
     offset: int|None = None  # Offset in bytes, if applicable
+    
+    type_kind: ClassVar[TypeKind] = TypeKind.ENUM
     
     @cached_property
     @override

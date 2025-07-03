@@ -1,0 +1,4 @@
+@dataclass
+class {{name}}:
+    {% if description %}{{description}}{% endif %}
+{% for element in elements %}    {{element.name}}: {{base_type(element)}}{% endfor %}

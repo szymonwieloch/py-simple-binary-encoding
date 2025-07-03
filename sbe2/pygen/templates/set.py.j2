@@ -1,0 +1,4 @@
+class {{name}}(enum.Flag):
+    {% if description %}{{description}}{% endif %}
+{% for ch in choices %}    {{ch.name}} = {{ch.value}} # {{ch.description}}
+{% endfor %}

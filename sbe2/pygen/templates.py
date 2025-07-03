@@ -6,3 +6,4 @@ env = Environment(
 
 enum = env.get_template('enum.py.j2')
 set_ = env.get_template('set.py.j2')
+composite = env.get_template('composite.py.j2')
