@@ -1,4 +1,4 @@
-from .common import ByteOrder, Presence, Element, FixedLengthElement
+from .common import ByteOrder, Presence, Element, FixedLengthElement, TypeKind
 from .enum import Enum, ValidValue
 from .type import Type
 from .composite import Composite

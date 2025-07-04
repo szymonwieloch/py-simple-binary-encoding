@@ -38,7 +38,8 @@ from .attributes import (
     parse_semantic_type,
     parse_block_length,
     parse_dimension_type,
-    parse_value_ref
+    parse_value_ref,
+    parse_character_encoding
 )
 from .errors import SchemaParsingError
 from .ctx import ParsingContext
@@ -209,6 +210,7 @@ def parse_type(node: Element) -> Type:
     length = parse_length(node)
     value_ref = parse_value_ref(node)
     value = node.text
+    character_encoding = parse_character_encoding(node)
 
     presence = parse_presence(node)
 
@@ -222,7 +224,8 @@ def parse_type(node: Element) -> Type:
         presence=presence,
         length=length,
         value_ref=value_ref,
-        value= value
+        value= value,
+        character_encoding=character_encoding
     )
 
 

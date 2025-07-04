@@ -1,4 +1,5 @@
 @dataclass
 class {{name}}:
-    {% if description %}{{description}}{% endif %}
-{% for element in elements %}    {{element.name}}: {{base_type(element)}}{% endfor %}
+{% if description %}    {{description}}
+{% endif %}{% for element in elements %}    {{element.name}}: {{element.type_name | repr}}{% if element.default_value %} = {{element.default_value}}{% endif %}
+{% endfor %}

@@ -35,6 +35,7 @@ class Type(FixedLengthElement):
     value_ref: str | None = None # constant value reference
     value: str | None = None # constant value of the given field
     const_val: Any = None # constant value translated into Python type
+    character_encoding: str | None = None
     
     type_kind: ClassVar[TypeKind] = TypeKind.TYPE
     

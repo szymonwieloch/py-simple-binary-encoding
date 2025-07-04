@@ -60,13 +60,13 @@ decimal = Composite(
     elements=[
         Type(
             name="mantissa",
-            primitive_type=int64,
+            primitive_type=pint64,
             presence=Presence.REQUIRED,
             description="",
         ),
         Type(
             name="exponent",
-            primitive_type=int8,
+            primitive_type=pint8,
             presence=Presence.REQUIRED,
             description="",
         ),
@@ -79,13 +79,13 @@ decimal32 = Composite(
     elements=[
         Type(
             name="mantissa",
-            primitive_type=int64,
+            primitive_type=pint64,
             presence=Presence.REQUIRED,
             description="",
         ),
         Type(
             name="exponent",
-            primitive_type=int8,
+            primitive_type=pint8,
             presence=Presence.CONSTANT,
             description="",
             const_val=-2,
@@ -99,13 +99,13 @@ decimal64 = Composite(
     elements=[
         Type(
             name="mantissa",
-            primitive_type=int64,
+            primitive_type=pint64,
             presence=Presence.REQUIRED,
             description="",
         ),
         Type(
             name="exponent",
-            primitive_type=int8,
+            primitive_type=pint8,
             presence=Presence.CONSTANT,
             description="",
             const_val=-2,

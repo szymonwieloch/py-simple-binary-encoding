@@ -11,6 +11,3 @@ def generate(schema: MessageSchema):
     Returns:
         str: The generated Python code as a string.
     """
-
-    
-    print(render_enum(schema.types['BooleanType']))

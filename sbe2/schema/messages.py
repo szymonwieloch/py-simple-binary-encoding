@@ -21,6 +21,13 @@ class Messages:
         self._by_name[msg.name] = msg
         
         
+    def __iter__(self):
+        """
+        Returns an iterator over the messages in the collection.
+        """
+        return iter(self._by_id.values())
+        
+        
     def __getitem__(self, key: int|str) -> Message:
         """
         Returns Message by ID or name.

@@ -258,7 +258,7 @@ def test_parse_type():
     
     node = xml(
         """
-    <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="required" length="3" />
+    <type name="TestType" primitiveType="int" sinceVersion="1" deprecated="2" description="Test Type" offset="0" presence="required" length="3" characterEncoding="utf-8"/>
     """
     )
     type_ = parse_type(node)
