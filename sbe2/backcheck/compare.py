@@ -1,4 +1,4 @@
-from ..schema import MessageSchema, Types, Messages, FixedLengthElement
+from ..schema import MessageSchema, Types, Messages, FixedLengthElement, Type Set, Enum, Composite
 from dataclasses import dataclass
 from .errors import Error, Diff
 
@@ -88,8 +88,14 @@ def compare_type(old_type: FixedLengthElement, new_type: FixedLengthElement, res
         result (list[Diff]): The list to append differences to.
         new_version (int | None): The new schema version, if applicable.
     """
-    # Placeholder for type comparison logic
-    pass
+    if isinstance(old_type, Type):
+        return compare_type_type(old_type, new_type, result, new_version)
+    if isinstance(old_type, Set):
+        return compare_type_set(old_type, new_type, result, new_version)
+    if isinstance(old_type, Enum):
+        return compare_type_enum(old_type, new_type, result, new_version)
+    if isinstance(old_type, Composite):
+        return compare_type_composite(old_type, new_type, result, new_version)
 
 
 def check_new_type(new_type: FixedLengthElement, result: list[Diff], new_version: int | None):
@@ -108,4 +114,36 @@ def check_new_type(new_type: FixedLengthElement, result: list[Diff], new_version
             result.append(Diff(f"Type {new_type.name} has no since version, but was added in version {new_version}", Error.TYPE_NO_SINCE_VERSION))
         else:
             if new_type.since_version != new_version:
-                result.append(Diff(f"Type {new_type.name} has a since version {new_type.since_version}, which does not match the new schema version {new_version}", Error.TYPE_WRONG_SINCE_VERSION))
+                result.append(Diff(f"Type {new_type.name} has a since version {new_type.since_version}, which does not match the new schema version {new_version}", Error.TYPE_WRONGþ_SINCE_VERSION))
+                
+                
+def compare_type_type(old_type: Type, new_type: Type, result: list[Diff], new_version: int | None):
+    """
+    Compare two Type instances for equality.
+    
+    Args:
+        old_type (Type): The old type.
+        new_type (Type): The new type.
+        result (list[Diff]): The list to append differences to.
+        new_version (int | None): The new schema version, if applicable.
+    """
+    if not isinstance(new_type, Type):
+        result.append(Diff(f"Expected Type, got {type(new_type).__name__}", Error.TYPE_MISMATCH))
+        return
+    if old_type.name != new_type.name:
+        result.append(Diff(f"Type names do not match: {old_type.name} != {new_type.name}", Error.TYPE_NAME_MISMATCH))
+    if old_type.length != new_type.length:
+        result.append(Diff(f"Type lengths do not match: {old_type.length} != {new_type.length}", Error.TYPE_LENGTH_MISMATCH))
+    if old_type.character_encoding != new_type.character_encoding:
+        result.append(Diff(f"Character encodings do not match: {old_type.character_encoding} != {new_type.character_encoding}", Error.TYPE_CHARACTER_ENCODING_MISMATCH))
+    if old_type.primitive_type != new_type.primitive_type:
+        result.append(Diff(f"Primitive types do not match: {old_type.primitive_type} != {new_type.primitive_type}", Error.TYPE_PRIMITIVE_TYPE_MISMATCH))
+    if old_type.since_version != new_type.since_version:
+            result.append(Diff(f"Since versions do not match: {old_type.since_version} != {new_type.since_version}", Error.TYPE_SINCE_VERSION_MISMATCH))
+    if old_type.deprecated != new_type.deprecated:
+        if old_type.deprecated is not None or new_type.deprecated != new_version:
+            result.append(Diff(f"Deprecated versions do not match: {old_type.deprecated} != {new_type.deprecated}", Error.TYPE_DEPRECATED_MISMATCH))
+    if old_type.presence != new_type.presence:
+        result.append(Diff(f"Presence does not match: {old_type.presence} != {new_type.presence}", Error.TYPE_PRESENCE_MISMATCH))
+    
+    # Further comparisons can be added as needed

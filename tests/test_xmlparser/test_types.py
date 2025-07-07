@@ -283,6 +283,17 @@ def test_parse_type():
         )
         parse_type(node)  # primitiveType should be mandatory
         
+    node = xml(
+        """    
+        <type name="TestType" primitiveType="int" presence="optional" nullValue="5" maxValue="10" minValue="1"/>
+        """)
+    type_ = parse_type(node)
+    assert type_.name == "TestType"
+    assert type_.primitive_type is primitive_type.int_
+    assert type_.presence == Presence.OPTIONAL
+    assert type_.null_value == 5
+    assert type_.max_value == 10
+        
 
 def test_parse_type_const_value():
     node = xml(

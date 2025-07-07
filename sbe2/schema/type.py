@@ -36,6 +36,9 @@ class Type(FixedLengthElement):
     value: str | None = None # constant value of the given field
     const_val: Any = None # constant value translated into Python type
     character_encoding: str | None = None
+    null_value: Any = None  # Value that represents null, if applicable
+    max_value: Any = None  # Maximum value for this type, if applicable
+    min_value: Any = None  # Minimum value for this type, if applicable
     
     type_kind: ClassVar[TypeKind] = TypeKind.TYPE
     

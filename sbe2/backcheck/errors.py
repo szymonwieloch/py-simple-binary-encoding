@@ -21,6 +21,16 @@ class Error(enum.Enum):
     TYPE_NO_SINCE_VERSION = ("type-no-since-version", "Type has no since version attribute, but it was added to the new schema.")
     TYPE_NO_SINCE_VERSION = ("type-no-since-version", "Type has no since version attribute, but it was added to the new schema.")
     TYPE_WRONG_SINCE_VERSION = ("type-wrong-since-version", "Type has since version attribute, but it is wrong.")
+    TYPE_CONVERTED = ("type-converted", "Type was converted to a different type.")
+    TYPE_NAME_MISMATCH = ("type-name-mismatch", "Type names do not match.")
+    TYPE_LENGTH_MISMATCH = ("type-length-mismatch", "Type lengths do not match.")
+    TYPE_CHARACTER_ENCODING_MISMATCH = ("type-character-encoding-mismatch", "Type character encodings do not match.")
+    TYPE_PRIMITIVE_TYPE_MISMATCH = ("type-primitive-type-mismatch", "Type primitive types do not match.")
+    TYPE_SINCE_VERSION_MISMATCH = ("type-since-version-mismatch", "Type since versions do not match.")
+    TYPE_DEPRECATED_MISMATCH = ("type-deprecated-mismatch", "Type deprecation versions do not match.")
+    TYPE_CONST_VALUE_MISMATCH = ("type-const-value-mismatch", "Type constant values do not match.")
+    TYPE_PRESENCE_MISMATCH = ("type-presence-mismatch", "Type presence does not match.")
+    
     
 
 @dataclass
