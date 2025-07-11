@@ -1,5 +1,5 @@
 from sbe2.schema import Type, Presence, Enum, ValidValue, Types
-from sbe2.schema.primitive_type import double, int_
+from sbe2.schema.primitive_type import double, int_, int16
 from unittest.mock import MagicMock
 from pytest import raises
 
@@ -44,4 +44,28 @@ def test_type_lazy_bind_no_constant():
     types = MagicMock()  # not used
     with raises(ValueError):
         type_.lazy_bind(types)
+        
+def test_type_effective_null_value():
+    t1 = Type(name="TestType", description="", primitive_type=double, presence=Presence.OPTIONAL, null_value=0.0)
+    assert t1.effective_null_value == 0.0
     
+    t2 = Type(name="TestType", description="", primitive_type=double, presence=Presence.OPTIONAL)
+    assert t2.effective_null_value is double.default_null_value  # Should match the default null value for double
+    
+    t3 = Type(name="TestType", description="", primitive_type=double, presence=Presence.REQUIRED, null_value=0.0)
+    assert t3.effective_null_value is None
+    
+def test_type_effective_max_value():
+    t1 = Type(name="TestType", description="", primitive_type=int16, presence=Presence.REQUIRED, max_value=5)
+    assert t1.effective_max_value == 5
+    
+    t2 = Type(name="TestType", description="", primitive_type=int16, presence=Presence.REQUIRED)
+    assert t2.effective_max_value == int16.max_value  # Should match the default max value for int16
+    
+    
+def test_type_effective_min_value():
+    t1 = Type(name="TestType", description="", primitive_type=int16, presence=Presence.REQUIRED, min_value=5)
+    assert t1.effective_min_value == 5
+    
+    t2 = Type(name="TestType", description="", primitive_type=int16, presence=Presence.REQUIRED)
+    assert t2.effective_min_value == int16.min_value  # Should match the default min value for int16

@@ -1,5 +1,5 @@
 from sbe2.schema import Enum, ValidValue, builtin, Set, Choice, Composite, Ref, Type, primitive_type, Presence, ByteOrder
-from sbe2.pygen.render import render_enum, render_set, render_composite, render_header
+from sbe2.pygen.render import render_enum, render_set, render_composite, render_header, base_type_name
 import datetime
 
 
@@ -88,3 +88,18 @@ SBE_SEMANTIC_VERSION:str = '1.0.0'
 SBE_BYTE_ORDER:str = 'big'
 SBE_SCHEMA_FILE:str|None = None"""
     assert got == want
+    
+    
+def test_base_type_name():
+    e = Enum(name='TestEnum', description='', valid_values=[], encoding_type_name='blah')
+    assert base_type_name(e) == 'TestEnum'
+    s = Set('TestSet', description='', encoding_type_name='blah', choices=[])
+    assert base_type_name(s) == 'TestSet'
+    t1 = Type(name="Something", description='', presence=Presence.REQUIRED, primitive_type=primitive_type.int16)
+    assert base_type_name(t1) == 'int'
+    t2 = Type(name="Something", description='', presence=Presence.REQUIRED, primitive_type=primitive_type.int8, character_encoding='UTF-8', length=5)
+    assert base_type_name(t2) == 'str'
+    t3 = Type(name="Something", description='', presence=Presence.REQUIRED, primitive_type=primitive_type.int16, length=6)
+    assert base_type_name(t3) == 'list[int]'
+    t4 = Type(name="Something", description='', presence=Presence.REQUIRED, primitive_type=primitive_type.int8, length=6)
+    assert base_type_name(t4) == 'bytes'

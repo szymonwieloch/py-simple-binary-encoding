@@ -42,6 +42,40 @@ class Type(FixedLengthElement):
     
     type_kind: ClassVar[TypeKind] = TypeKind.TYPE
     
+    @cached_property
+    def effective_null_value(self):
+        """
+        Returns the effective null value for this type.
+        If a null_value is defined, it returns that; otherwise, it returns the default value for the primitive type.
+        """
+        if self.presence is not Presence.OPTIONAL:
+            return None
+        if self.null_value is not None:
+            return self.null_value
+        return self.primitive_type.default_null_value
+    
+    @cached_property
+    def effective_max_value(self):
+        """
+        Returns the effective maximum value for this type.
+        If a max_value is defined, it returns that; otherwise, it returns the maximum value for the primitive type.
+        """
+        if self.max_value is not None:
+            return self.max_value
+        return self.primitive_type.max_value
+    
+    @cached_property
+    def effective_min_value(self):
+        """
+        Returns the effective minimum value for this type.
+        If a min_value is defined, it returns that; otherwise, it returns the minimum value for the primitive type.
+        """
+        if self.min_value is not None:
+            return self.min_value
+        return self.primitive_type.min_value
+    
+    
+    
     def lazy_bind(self, types):
         if self.presence is Presence.CONSTANT and self.const_val is None:
             if self.value_ref:

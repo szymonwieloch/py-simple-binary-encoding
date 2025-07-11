@@ -55,7 +55,7 @@ def base_type_name(type_: FixedLengthElement) -> str:
         return type_.name
     if isinstance(type_, Ref):
         return base_type_name(type_.type_)
-    raise TypeError(f"Unsupported type: {type(type_)}")
+    raise TypeError(f"Unsupported type: {type(type_)}") # pragma: no cover
 
 
 @dataclass
