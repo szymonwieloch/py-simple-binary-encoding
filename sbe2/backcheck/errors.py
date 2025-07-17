@@ -91,6 +91,34 @@ class Error(enum.Enum):
     CHOICE_NAME_MISMATCH = ("choice-name-mismatch", "Set choice names do not match.")
 
 
+    
+    
+    
+    VALID_VALUE_ADDED = (
+        "valid-value-added",
+        "Enum valid value was added to the schema even though the version has not changed.",
+    )
+    VALID_VALUE_REMOVED = ("valid-value-removed", "Enum valid value was removed.")
+    VALID_VALUE_NO_SINCE_VERSION = (
+        "valid-value-no-since-version",
+        "Enum valid value has no since version attribute, but it was added to the new schema.",
+    )
+    VALID_VALUE_SINCE_VERSION_MISMATCH = (
+        "valid-value-since-version-mismatch",
+        "Enum valid value since versions do not match.",
+    )
+    VALID_VALUE_DEPRECATED_MISMATCH = (
+        "valid-value-deprecated-mismatch",
+        "Enum valid value deprecation versions do not match.",
+    )
+    VALID_VALUE_NAME_MISMATCH = ("valid-value-name-mismatch", "Enum valid value names do not match.")
+    
+    COMPOSITE_ADDED_ELEMENT = ('composite-added-element', "An element was added to a composite.")
+    COMPOSITE_MISSING_ELEMENT = ('composite-missing-element', "An element was removed from a composite")
+    COMPOSITE_SINCE_VERSION_MISMATCH = ('composite-since-version-mismatch', "Composite since versions do not match.")
+    COMPOSITE_DEPRECATED_MISMATCH = ("composite-deprecated-mismatch", "Composite deprecation versions do not match.")
+
+
 @dataclass
 class Diff:
     """
