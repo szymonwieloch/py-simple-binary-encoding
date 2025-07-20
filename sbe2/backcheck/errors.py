@@ -33,6 +33,15 @@ class Error(enum.Enum):
         "Semantic version has not been updated, but the schema version has been updated.",
     )
 
+    TYPE_NAME_MISMATCH = ("type-name-mismatch", "Type names do not match.")
+    TYPE_SINCE_VERSION_MISMATCH = (
+        "type-since-version-mismatch",
+        "Type since versions do not match.",
+    )
+    TYPE_DEPRECATED_MISMATCH = (
+        "type-deprecated-mismatch",
+        "Type deprecation versions do not match.",
+    )
     TYPE_REMOVED = ("type-removed", "Type was removed.")
     TYPE_ADDED = (
         "type-added",
@@ -47,7 +56,6 @@ class Error(enum.Enum):
         "Type has since version attribute, but it is wrong.",
     )
     TYPE_CONVERTED = ("type-converted", "Type was converted to a different type.")
-    TYPE_NAME_MISMATCH = ("type-name-mismatch", "Type names do not match.")
     TYPE_LENGTH_MISMATCH = ("type-length-mismatch", "Type lengths do not match.")
     TYPE_CHARACTER_ENCODING_MISMATCH = (
         "type-character-encoding-mismatch",
@@ -57,20 +65,31 @@ class Error(enum.Enum):
         "type-primitive-type-mismatch",
         "Type primitive types do not match.",
     )
-    TYPE_SINCE_VERSION_MISMATCH = (
-        "type-since-version-mismatch",
-        "Type since versions do not match.",
-    )
-    TYPE_DEPRECATED_MISMATCH = (
-        "type-deprecated-mismatch",
-        "Type deprecation versions do not match.",
-    )
     TYPE_CONST_VALUE_MISMATCH = (
         "type-const-value-mismatch",
         "Type constant values do not match.",
     )
     TYPE_PRESENCE_MISMATCH = ("type-presence-mismatch", "Type presence does not match.")
-
+    
+    SET_NAME_MISMATCH = ("set-name-mismatch", "Set names do not match.")
+    SET_SINCE_VERSION_MISMATCH = (
+        "set-since-version-mismatch",
+        "Set since versions do not match.",
+    )
+    SET_DEPRECATED_MISMATCH = (
+        "set-deprecated-mismatch",
+        "Set choice deprecation versions do not match.",
+    )
+    
+    CHOICE_NAME_MISMATCH = ("choice-name-mismatch", "Set choice names do not match.")
+    CHOICE_SINCE_VERSION_MISMATCH = (
+        "choice-since-version-mismatch",
+        "Set choice since versions do not match.",
+    )
+    CHOICE_DEPRECATED_MISMATCH = (
+        "choice-deprecated-mismatch",
+        "Set choice deprecation versions do not match.",
+    )
     CHOICE_ADDED = (
         "choice-added",
         "Set choice was added to the schema even though the version has not changed.",
@@ -80,20 +99,26 @@ class Error(enum.Enum):
         "choice-no-since-version",
         "Set choice has no since version attribute, but it was added to the new schema.",
     )
-    CHOICE_SINCE_VERSION_MISMATCH = (
-        "choice-since-version-mismatch",
-        "Set choice since versions do not match.",
+   
+    ENUM_NAME_MISMATCH = ("enum-name-mismatch", "Enum names do not match.")
+    ENUM_SINCE_VERSION_MISMATCH = (
+        "enum-since-version-mismatch",
+        "Enum since versions do not match.",
     )
-    CHOICE_DEPRECATED_MISMATCH = (
-        "choice-deprecated-mismatch",
-        "Set choice deprecation versions do not match.",
+    ENUM_DEPRECATED_MISMATCH = (
+        "enum-deprecated-mismatch",
+        "Enum deprecation versions do not match.",
     )
-    CHOICE_NAME_MISMATCH = ("choice-name-mismatch", "Set choice names do not match.")
-
-
-    
-    
-    
+   
+    VALID_VALUE_NAME_MISMATCH = ("valid-value-name-mismatch", "Enum valid value names do not match.")
+    VALID_VALUE_SINCE_VERSION_MISMATCH = (
+        "valid-value-since-version-mismatch",
+        "Enum valid value since versions do not match.",
+    )
+    VALID_VALUE_DEPRECATED_MISMATCH = (
+        "valid-value-deprecated-mismatch",
+        "Enum valid value deprecation versions do not match.",
+    )
     VALID_VALUE_ADDED = (
         "valid-value-added",
         "Enum valid value was added to the schema even though the version has not changed.",
@@ -103,21 +128,16 @@ class Error(enum.Enum):
         "valid-value-no-since-version",
         "Enum valid value has no since version attribute, but it was added to the new schema.",
     )
-    VALID_VALUE_SINCE_VERSION_MISMATCH = (
-        "valid-value-since-version-mismatch",
-        "Enum valid value since versions do not match.",
-    )
-    VALID_VALUE_DEPRECATED_MISMATCH = (
-        "valid-value-deprecated-mismatch",
-        "Enum valid value deprecation versions do not match.",
-    )
-    VALID_VALUE_NAME_MISMATCH = ("valid-value-name-mismatch", "Enum valid value names do not match.")
     
-    COMPOSITE_ADDED_ELEMENT = ('composite-added-element', "An element was added to a composite.")
-    COMPOSITE_MISSING_ELEMENT = ('composite-missing-element', "An element was removed from a composite")
+    COMPOSITE_NAME_MISMATCH = ('composite-name-mismatch', "Composite names do not match")
     COMPOSITE_SINCE_VERSION_MISMATCH = ('composite-since-version-mismatch', "Composite since versions do not match.")
     COMPOSITE_DEPRECATED_MISMATCH = ("composite-deprecated-mismatch", "Composite deprecation versions do not match.")
-
+    COMPOSITE_ADDED_ELEMENT = ('composite-added-element', "An element was added to a composite.")
+    COMPOSITE_MISSING_ELEMENT = ('composite-missing-element', "An element was removed from a composite")
+    
+    REF_NAME_MISMATCH = ('ref-name-mismatch', "Reference names do not match")
+    REF_SINCE_VERSION_MISMATCH = ('ref-since-version-mismatch', "Reference since versions do not match.")
+    REF_DEPRECATED_MISMATCH = ("ref-deprecated-mismatch", "Reference deprecation versions do not match.")
 
 @dataclass
 class Diff:
